@@ -1,0 +1,47 @@
+---
+- name: Verify Open Liberty installation
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Check wlp directory exists
+      ansible.builtin.stat:
+        path: /opt/openliberty/wlp
+      register: _wlp_dir
+      failed_when: not _wlp_dir.stat.exists
+
+    - name: Check server binary exists
+      ansible.builtin.stat:
+        path: /opt/openliberty/wlp/bin/server
+      register: _server_bin
+      failed_when: not _server_bin.stat.exists
+
+    - name: Check systemd unit file exists
+      ansible.builtin.stat:
+        path: /etc/systemd/system/openliberty-defaultServer.service
+      register: _unit_file
+      failed_when: not _unit_file.stat.exists
+
+    - name: Check server.xml exists
+      ansible.builtin.stat:
+        path: /opt/openliberty/wlp/usr/servers/defaultServer/server.xml
+      register: _server_xml
+      failed_when: not _server_xml.stat.exists
+
+    - name: Check service is active
+      ansible.builtin.systemd:
+        name: openliberty-defaultServer
+      register: _svc
+      become: true
+      failed_when: _svc.status.ActiveState != 'active'
+
+    - name: Check liberty user exists
+      ansible.builtin.getent:
+        database: passwd
+        key: liberty
+
+    - name: Wait for HTTP port 9080
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: 9080
+        timeout: 60

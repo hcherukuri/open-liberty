@@ -1,0 +1,20 @@
+---
+# In-place upgrade. Pass target with -e openliberty_new_version=X.Y.Z.W
+- name: Update Open Liberty to a new version
+  hosts: liberty_servers
+  gather_facts: true
+  serial: 1
+  vars:
+    openliberty_new_version: "24.0.0.9"
+    openliberty_edition: webProfile
+    openliberty_install_dir: /opt/openliberty
+    openliberty_server_name: defaultServer
+    openliberty_user: liberty
+    openliberty_group: liberty
+    openliberty_update_backup: true
+  roles:
+    - role: middleware_automation.open_liberty.version_update
+  post_tasks:
+    - name: Validate server after upgrade
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.validation

@@ -1,0 +1,19 @@
+---
+# Install MicroProfile edition with /health validation.
+- name: Install Open Liberty – MicroProfile
+  hosts: liberty_servers
+  gather_facts: true
+  vars:
+    openliberty_version: "24.0.0.9"
+    openliberty_edition: microProfile
+    openliberty_server_name: microServer
+    openliberty_http_port: 9080
+    openliberty_https_port: 9443
+    openliberty_install_java: true
+    openliberty_validate_health_endpoint: true
+    openliberty_health_url_path: "/health"
+  roles:
+    - role: middleware_automation.open_liberty.install
+    - role: middleware_automation.open_liberty.server_config
+    - role: middleware_automation.open_liberty.systemd
+    - role: middleware_automation.open_liberty.validation

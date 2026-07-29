@@ -1,0 +1,24 @@
+---
+# converge.yml – validation scenario
+# Phase 1: install Liberty (install + server_config + systemd).
+# Phase 2: run the validation role with health endpoint check enabled.
+- name: Converge – Validation
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Install Open Liberty
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.install
+
+    - name: Configure server
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.server_config
+
+    - name: Enable and start Liberty service
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.systemd
+
+    - name: Run validation role (service check + port wait + health check)
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.validation

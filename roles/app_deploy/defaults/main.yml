@@ -1,0 +1,23 @@
+---
+# Deploy WAR/EAR/JAR archives to a running Open Liberty server.
+# https://openliberty.io/docs/latest/deploy-war-ear.html
+
+openliberty_home: /opt/openliberty/wlp
+openliberty_server_name: defaultServer
+openliberty_user: liberty
+openliberty_group: liberty
+
+# Each item: name, src (path or URL), optional type/context_root/state/checksum.
+openliberty_applications: []
+
+# true → copy to dropins/ for auto-discovery; false → configDropins <application>.
+openliberty_deploy_to_dropins: false
+openliberty_dropins_dir: dropins
+
+openliberty_deploy_wait_timeout: 120
+openliberty_deploy_wait_delay: 5
+openliberty_http_port: 9080
+openliberty_deploy_validate: true
+
+# Keep a timestamped backup of replaced archives.
+openliberty_deploy_backup: true

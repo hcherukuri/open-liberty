@@ -1,0 +1,43 @@
+---
+namespace: middleware_automation
+name: open_liberty
+version: 1.0.0
+readme: README.md
+authors:
+  - Harsha Cherukuri <hcheruku@redhat.com>
+description: >
+  Ansible collection to install, configure, and manage IBM Open Liberty
+  application server. Supports Core Profile, Web Profile, and Platform (Full Platform)
+  standalone installations. Includes roles for application deployment,
+  version updates, and HTTP/HTTPS port configuration.
+license:
+  - GPL-2.0-only
+license_file: LICENSE
+tags:
+  - openliberty
+  - liberty
+  - java
+  - jakarta
+  - microprofile
+  - middleware
+  - deploy
+  - upgrade
+  - networking
+repository: https://github.com/hcherukuri/open-liberty
+documentation: https://github.com/hcherukuri/open-liberty
+homepage: https://openliberty.io
+issues: https://github.com/hcherukuri/open-liberty/issues
+dependencies:
+  community.general: ">=6.0.0"
+  ansible.posix: ">=1.4.0"
+build_ignore:
+  - molecule
+  - .github
+  - .ansible-lint
+  - .yamllint.yml
+  - ansible.cfg
+  - .DS_Store
+  - '*.tar.gz'
+  - '*.zip'
+  - .ansible
+  - requirements.txt

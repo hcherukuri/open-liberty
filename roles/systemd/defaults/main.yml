@@ -1,0 +1,19 @@
+---
+openliberty_service_name: "openliberty-{{ openliberty_server_name | default('defaultServer') }}"
+openliberty_service_enabled: true
+openliberty_service_state: started
+openliberty_service_start_timeout: 300
+
+openliberty_user: liberty
+openliberty_group: liberty
+openliberty_home: /opt/openliberty/wlp
+openliberty_server_name: defaultServer
+
+# Fallback when Java is preinstalled; overwritten by install role discovery when install_java is true.
+openliberty_java_home: /usr/lib/jvm/java-17-openjdk
+
+# Extra env vars: [{"key": "WLP_OUTPUT_DIR", "value": "/var/log/openliberty"}]
+openliberty_service_env_vars: []
+
+# Extra JVM options via JVM_ARGS.
+openliberty_jvm_options: []

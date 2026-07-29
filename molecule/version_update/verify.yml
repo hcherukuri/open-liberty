@@ -1,0 +1,84 @@
+---
+# verify.yml – version_update scenario
+- name: Verify Version Update
+  hosts: all
+  gather_facts: false
+
+  vars:
+    _ol_wlp: /opt/openliberty/wlp
+
+  tasks:
+    - name: Check server binary exists after upgrade
+      ansible.builtin.stat:
+        path: "{{ _ol_wlp }}/bin/server"
+      register: _server_bin
+
+    - name: Assert server binary is present
+      ansible.builtin.assert:
+        that: _server_bin.stat.exists and (_server_bin.stat.xusr or _server_bin.stat.xgrp)
+        fail_msg: "bin/server not found or not executable after upgrade"
+        success_msg: "bin/server is present and executable"
+
+    - name: Slurp openliberty.properties
+      ansible.builtin.slurp:
+        src: "{{ _ol_wlp }}/lib/versions/openliberty.properties"
+      register: _version_props
+      become: true
+
+    - name: Parse installed version from properties
+      ansible.builtin.set_fact:
+        _installed_version: >-
+          {{ (_version_props.content | b64decode)
+             | regex_search('com\\.ibm\\.websphere\\.productVersion=(.+)', '\\1')
+             | first | default('unknown') | trim }}
+
+    - name: Assert installed version matches target version
+      ansible.builtin.assert:
+        that: _installed_version == openliberty_new_version
+        fail_msg: >
+          Version mismatch – expected {{ openliberty_new_version }},
+          found {{ _installed_version }}
+        success_msg: "Open Liberty upgraded to {{ _installed_version }} successfully"
+
+    - name: Find backup directories created by version_update
+      ansible.builtin.find:
+        paths: /opt/openliberty
+        patterns: "wlp.backup.*"
+        file_type: directory
+      register: _backup_dirs
+
+    - name: Assert backup directory was created
+      ansible.builtin.assert:
+        that: _backup_dirs.matched >= 1
+        fail_msg: "No wlp.backup.* directory found – openliberty_update_backup may not have run"
+        success_msg: "Backup directory present: {{ _backup_dirs.files | map(attribute='path') | list }}"
+
+    - name: Check systemd service is active after upgrade
+      ansible.builtin.systemd:
+        name: "openliberty-defaultServer"
+      register: _svc
+      become: true
+
+    - name: Assert service is active
+      ansible.builtin.assert:
+        that: _svc.status.ActiveState == 'active'
+        fail_msg: "openliberty-defaultServer is not active after upgrade (state: {{ _svc.status.ActiveState }})"
+        success_msg: "Service is active after upgrade"
+
+    - name: Confirm HTTP port is open after upgrade
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: "{{ openliberty_http_port }}"
+        timeout: 60
+        msg: "Liberty HTTP port not responding after version upgrade"
+
+    - name: Check wlp directory ownership after upgrade
+      ansible.builtin.stat:
+        path: "{{ _ol_wlp }}"
+      register: _wlp_stat
+
+    - name: Assert wlp directory is owned by liberty
+      ansible.builtin.assert:
+        that: _wlp_stat.stat.pw_name == 'liberty'
+        fail_msg: "wlp directory ownership changed after upgrade (owner: {{ _wlp_stat.stat.pw_name }})"
+        success_msg: "wlp directory ownership preserved (liberty)"

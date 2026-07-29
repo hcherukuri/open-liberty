@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+
+  roles:
+    - role: middleware_automation.open_liberty.install
+    - role: middleware_automation.open_liberty.server_config
+    - role: middleware_automation.open_liberty.systemd

@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  author: Ansible-Middleware Team
+  description: >
+    Reconfigure HTTP and HTTPS listener ports on an Open Liberty server,
+    update firewall rules, and restart the service.
+  license: GPL-2.0-only
+  min_ansible_version: "2.16"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+        - "10"
+  galaxy_tags:
+    - openliberty
+    - liberty
+    - java
+    - jakarta
+    - middleware
+    - networking
+dependencies: []

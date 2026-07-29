@@ -1,0 +1,10 @@
+---
+# Intentionally empty: container teardown is handled by molecule destroy.
+# Application uninstall is covered by the dedicated uninstall scenario.
+- name: Cleanup
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: No application cleanup in this scenario
+      ansible.builtin.debug:
+        msg: "Skipping uninstall; molecule destroy will remove containers"

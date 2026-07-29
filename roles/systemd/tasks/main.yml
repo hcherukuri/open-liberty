@@ -1,0 +1,23 @@
+---
+- name: Ensure systemd service unit file is deployed
+  ansible.builtin.template:
+    src: openliberty.service.j2
+    dest: "/etc/systemd/system/{{ openliberty_service_name }}.service"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify:
+    - Reload systemd daemon
+    - Restart Open Liberty service
+
+- name: Flush handlers so daemon-reload happens before service management
+  ansible.builtin.meta: flush_handlers
+
+- name: "Ensure Open Liberty service is {{ openliberty_service_state }} and enabled={{ openliberty_service_enabled }}"
+  ansible.builtin.systemd:
+    name: "{{ openliberty_service_name }}"
+    state: "{{ openliberty_service_state }}"
+    enabled: "{{ openliberty_service_enabled }}"
+    daemon_reload: false
+  become: true

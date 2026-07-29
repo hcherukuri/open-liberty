@@ -1,0 +1,53 @@
+---
+- name: Shared molecule bootstrap (python39 on RHEL 8, sudo, unzip)
+  ansible.builtin.import_playbook: ../prepare.yml
+
+- name: Install Open Liberty and create sample WAR stub
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Install and configure Liberty (webProfile)
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.install
+
+    - name: Configure server
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.server_config
+
+    - name: Enable and start Liberty service
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.systemd
+
+    - name: Wait for Liberty HTTP port to be open before deploy tests
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: "{{ openliberty_http_port }}"
+        timeout: 120
+        delay: 5
+
+    # Minimal WAR stub — Molecule images have no Maven.
+    - name: Create temporary WAR build directory
+      ansible.builtin.file:
+        path: /tmp/sample_war/WEB-INF
+        state: directory
+        mode: "0755"
+
+    - name: Write minimal web.xml into WAR skeleton
+      ansible.builtin.copy:
+        dest: /tmp/sample_war/WEB-INF/web.xml
+        content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                     https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+                   version="5.0">
+            <display-name>sample</display-name>
+          </web-app>
+        mode: "0644"
+
+    - name: Package skeleton into sample.war
+      ansible.builtin.command:
+        cmd: zip -r /tmp/sample.war .
+        chdir: /tmp/sample_war
+      changed_when: true

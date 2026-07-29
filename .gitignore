@@ -1,0 +1,16 @@
+*.zip
+*.tar.gz
+.tmp
+.cache
+.ansible
+docs/plugins/
+docs/roles/
+docs/_build/
+.pytest_cache/
+.mypy_cache/
+__pycache__/
+*.pyc
+*.retry
+changelogs/.plugin-cache.yaml
+inventory
+junit/

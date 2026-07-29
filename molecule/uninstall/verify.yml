@@ -1,0 +1,76 @@
+---
+# verify.yml – uninstall scenario
+# Asserts that the uninstall role fully removed all Liberty artefacts.
+- name: Verify Uninstall
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Check installation directory is absent
+      ansible.builtin.stat:
+        path: /opt/openliberty
+      register: _install_dir
+
+    - name: Assert installation directory was removed
+      ansible.builtin.assert:
+        that: not _install_dir.stat.exists
+        fail_msg: "/opt/openliberty still exists – uninstall role did not remove it"
+        success_msg: "/opt/openliberty was removed"
+
+    - name: Check systemd unit file is absent
+      ansible.builtin.stat:
+        path: /etc/systemd/system/openliberty-defaultServer.service
+      register: _unit_file
+
+    - name: Assert unit file was removed
+      ansible.builtin.assert:
+        that: not _unit_file.stat.exists
+        fail_msg: "openliberty-defaultServer.service still present – uninstall did not remove the unit file"
+        success_msg: "Systemd unit file was removed"
+
+    - name: Check service is not active
+      ansible.builtin.systemd:
+        name: openliberty-defaultServer
+      register: _svc
+      become: true
+      ignore_errors: true
+
+    - name: Assert service is not running
+      ansible.builtin.assert:
+        that: _svc.status.ActiveState in ['inactive', 'failed', 'unknown']
+        fail_msg: "openliberty-defaultServer is still active after uninstall (state: {{ _svc.status.ActiveState }})"
+        success_msg: "Service is not running (state: {{ _svc.status.ActiveState }})"
+
+    - name: Check liberty user is absent
+      ansible.builtin.getent:
+        database: passwd
+        key: liberty
+        fail_key: false
+      register: _liberty_user
+
+    - name: Assert liberty user was removed
+      ansible.builtin.assert:
+        that: _liberty_user.ansible_facts.getent_passwd.liberty is not defined
+        fail_msg: "liberty user still exists – uninstall did not remove the system user"
+        success_msg: "liberty user was removed"
+
+    - name: Check liberty group is absent
+      ansible.builtin.getent:
+        database: group
+        key: liberty
+        fail_key: false
+      register: _liberty_group
+
+    - name: Assert liberty group was removed
+      ansible.builtin.assert:
+        that: _liberty_group.ansible_facts.getent_group.liberty is not defined
+        fail_msg: "liberty group still exists – uninstall did not remove the system group"
+        success_msg: "liberty group was removed"
+
+    - name: Confirm HTTP port 9080 is closed
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: 9080
+        state: stopped
+        timeout: 30
+        msg: "Port 9080 is still open after uninstall – Liberty may still be running"

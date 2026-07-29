@@ -1,0 +1,33 @@
+---
+# Rolling upgrade: stop → reinstall → reconfigure → validate.
+# Pass -e openliberty_new_version=X.Y.Z.W
+- name: Upgrade Open Liberty
+  hosts: liberty_servers
+  gather_facts: true
+  serial: 1
+  vars:
+    openliberty_new_version: "24.0.0.9"
+  tasks:
+    - name: Stop Open Liberty service
+      ansible.builtin.systemd:
+        name: "openliberty-{{ openliberty_server_name | default('defaultServer') }}"
+        state: stopped
+      become: true
+
+    - name: Reinstall at new version
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.install
+      vars:
+        openliberty_version: "{{ openliberty_new_version }}"
+
+    - name: Reconfigure server.xml for new version
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.server_config
+
+    - name: Reload systemd unit
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.systemd
+
+    - name: Validate upgraded server
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.validation

@@ -1,0 +1,25 @@
+---
+# Resolve the archive URL (vars/main.yml) to a trimmed string before using it.
+- name: Resolve archive URL
+  ansible.builtin.set_fact:
+    _openliberty_archive_url: "{{ openliberty_archive_url | trim }}"
+    _openliberty_archive_filename: "{{ openliberty_archive_filename | trim }}"
+
+- name: Check whether Open Liberty is already installed
+  ansible.builtin.stat:
+    path: "{{ openliberty_install_dir }}/wlp/bin/server"
+  register: _openliberty_installed_server
+
+- name: Download Open Liberty archive
+  ansible.builtin.get_url:
+    url: "{{ _openliberty_archive_url }}"
+    dest: "{{ openliberty_install_workdir }}/{{ _openliberty_archive_filename }}"
+    mode: "0644"
+    checksum: "{{ openliberty_download_checksum if openliberty_download_checksum | length > 0 else omit }}"
+    timeout: "{{ openliberty_download_timeout }}"
+  register: _openliberty_download
+  retries: "{{ openliberty_download_retries }}"
+  delay: 10
+  until: _openliberty_download is succeeded
+  become: false
+  when: not _openliberty_installed_server.stat.exists

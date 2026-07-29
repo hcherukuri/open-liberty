@@ -1,0 +1,64 @@
+---
+# RHEL 8: avoid ansible.builtin.package/dnf with python39 (no dnf bindings).
+- name: Ensure unzip package is present (RHEL 8)
+  ansible.builtin.command:
+    cmd: dnf install -y unzip
+  become: true
+  register: _openliberty_unzip_rhel8
+  changed_when: >-
+    'Installing:' in _openliberty_unzip_rhel8.stdout
+    or 'Installed:' in _openliberty_unzip_rhel8.stdout
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version | int == 8
+
+- name: Ensure unzip package is present
+  ansible.builtin.package:
+    name: unzip
+    state: present
+  become: true
+  when: >-
+    not (ansible_os_family == "RedHat"
+         and ansible_distribution_major_version | int == 8)
+
+- name: Optionally install Java
+  ansible.builtin.include_tasks: java.yml
+  when: openliberty_install_java | bool
+
+- name: Create Open Liberty group
+  ansible.builtin.group:
+    name: "{{ openliberty_group }}"
+    system: true
+    state: present
+  become: true
+  when: openliberty_manage_user | bool
+
+- name: Create Open Liberty user
+  ansible.builtin.user:
+    name: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    home: "{{ openliberty_install_dir }}"
+    shell: "{{ openliberty_user_shell }}"
+    system: true
+    create_home: false
+    state: present
+  become: true
+  when: openliberty_manage_user | bool
+
+- name: Ensure installation base directory exists
+  ansible.builtin.file:
+    path: "{{ openliberty_install_dir }}"
+    state: directory
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0755"
+  become: true
+
+- name: Download Open Liberty archive
+  ansible.builtin.include_tasks: download.yml
+
+- name: Extract Open Liberty archive
+  ansible.builtin.include_tasks: extract.yml
+
+- name: Verify installation
+  ansible.builtin.include_tasks: verify.yml

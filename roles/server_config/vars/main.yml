@@ -1,0 +1,19 @@
+---
+# Feature list per edition – used when openliberty_extra_features is empty.
+# Users may override this variable to supply a fully custom feature list.
+
+_openliberty_features_by_edition:
+  kernel: []
+  webProfile:
+    - webProfile-10.0
+  jakartaee:
+    - jakartaee-10.0
+  microProfile:
+    - microProfile-6.1
+
+# Computed feature list: edition defaults + any user-supplied extras.
+openliberty_features: >-
+  {{
+    (_openliberty_features_by_edition[openliberty_edition] | default([])) +
+    (openliberty_extra_features | default([]))
+  }}

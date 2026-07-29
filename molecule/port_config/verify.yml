@@ -1,0 +1,64 @@
+---
+# verify.yml – port_config scenario
+- name: Verify Port Configuration
+  hosts: all
+  gather_facts: false
+
+  vars:
+    _ol_server_dir: /opt/openliberty/wlp/usr/servers/defaultServer
+
+  tasks:
+    - name: Check port_config.xml override was written
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/configDropins/overrides/port_config.xml"
+      register: _port_xml
+
+    - name: Assert port_config.xml exists
+      ansible.builtin.assert:
+        that: _port_xml.stat.exists
+        fail_msg: "configDropins/overrides/port_config.xml not found – port_config role did not run"
+        success_msg: "port_config.xml override present"
+
+    - name: Slurp port_config.xml content
+      ansible.builtin.slurp:
+        src: "{{ _ol_server_dir }}/configDropins/overrides/port_config.xml"
+      register: _port_xml_content
+      become: true
+
+    - name: Assert httpPort 8080 is in override XML
+      ansible.builtin.assert:
+        that: "'httpPort=\"8080\"' in (_port_xml_content.content | b64decode)"
+        fail_msg: "httpPort=8080 not found in port_config.xml"
+        success_msg: "httpPort=8080 correctly rendered"
+
+    - name: Assert httpsPort 8443 is in override XML
+      ansible.builtin.assert:
+        that: "'httpsPort=\"8443\"' in (_port_xml_content.content | b64decode)"
+        fail_msg: "httpsPort=8443 not found in port_config.xml"
+        success_msg: "httpsPort=8443 correctly rendered"
+
+    - name: Confirm Liberty is listening on port 8080
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: 8080
+        timeout: 60
+        msg: "Liberty is not listening on port 8080 after port_config reconfiguration"
+
+    - name: Confirm port 9080 is no longer open
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: 9080
+        state: stopped
+        timeout: 30
+        msg: "Port 9080 is still open – Liberty may not have reloaded the new port configuration"
+
+    - name: Check port_config.xml ownership
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/configDropins/overrides/port_config.xml"
+      register: _port_xml_stat
+
+    - name: Assert port_config.xml is owned by liberty
+      ansible.builtin.assert:
+        that: _port_xml_stat.stat.pw_name == 'liberty'
+        fail_msg: "port_config.xml is not owned by liberty (owner: {{ _port_xml_stat.stat.pw_name }})"
+        success_msg: "port_config.xml ownership correct (liberty)"

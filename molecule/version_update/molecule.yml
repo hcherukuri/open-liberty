@@ -1,0 +1,27 @@
+---
+# Upgrade 24.0.0.9 → 24.0.0.12 with wlp/ backup.
+# Platforms from .config/molecule/config.yml.
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_FORCE_COLOR: "true"
+  playbooks:
+    prepare: ../prepare.yml
+    converge: converge.yml
+    verify: verify.yml
+    cleanup: ../default/cleanup.yml
+  inventory:
+    group_vars:
+      all:
+        openliberty_version: "24.0.0.9"
+        openliberty_edition: webProfile
+        openliberty_server_name: defaultServer
+        openliberty_http_port: 9080
+        openliberty_install_java: true
+        openliberty_validate_health_endpoint: false
+        openliberty_new_version: "24.0.0.12"
+        openliberty_update_backup: true
+
+verifier:
+  name: ansible

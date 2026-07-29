@@ -1,0 +1,41 @@
+---
+- name: Stop and disable Open Liberty service
+  ansible.builtin.systemd:
+    name: "{{ openliberty_service_name }}"
+    state: stopped
+    enabled: false
+  become: true
+  failed_when: false  # service may already be stopped or not installed
+
+- name: Remove systemd unit file
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ openliberty_service_name }}.service"
+    state: absent
+  become: true
+  notify: Reload systemd daemon
+
+- name: Reload systemd so the unit disappears from the registry
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Remove Open Liberty installation directory
+  ansible.builtin.file:
+    path: "{{ openliberty_install_dir }}"
+    state: absent
+  become: true
+
+- name: Remove system user
+  ansible.builtin.user:
+    name: "{{ openliberty_user }}"
+    state: absent
+    remove: true
+  become: true
+  when: openliberty_remove_user | bool
+
+- name: Remove system group
+  ansible.builtin.group:
+    name: "{{ openliberty_group }}"
+    state: absent
+  become: true
+  when: openliberty_remove_group | bool

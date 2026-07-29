@@ -1,0 +1,7 @@
+---
+# Smoke-test a running Open Liberty instance.
+- name: Validate Open Liberty
+  hosts: liberty_servers
+  gather_facts: true
+  roles:
+    - role: middleware_automation.open_liberty.validation

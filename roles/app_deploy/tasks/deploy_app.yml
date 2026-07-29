@@ -1,0 +1,97 @@
+---
+# app_deploy – deploy_app.yml
+# Handles one application item from openliberty_applications.
+
+- name: Set deployment facts for application
+  ansible.builtin.set_fact:
+    _app_state: "{{ _app.state | default('present') }}"
+    _app_type: "{{ _app.type | default(_app.src | regex_replace('.*\\.', '')) }}"
+    _app_filename: "{{ _app.src | basename }}"
+
+- name: Determine destination path for application
+  ansible.builtin.set_fact:
+    _app_dest: "{{ _openliberty_deploy_dest_dir }}/{{ _app_filename }}"
+
+- name: Remove application archive
+  ansible.builtin.file:
+    path: "{{ _app_dest }}"
+    state: absent
+  become: true
+  when: _app_state == 'absent'
+  notify: Restart Open Liberty service
+
+- name: Stat existing deployment archive
+  ansible.builtin.stat:
+    path: "{{ _app_dest }}"
+  register: _existing_app
+  when: _app_state == 'present'
+
+- name: Backup existing archive before replacement
+  ansible.builtin.copy:
+    src: "{{ _app_dest }}"
+    dest: "{{ _app_dest }}.{{ ansible_date_time.iso8601_basic_short }}.bak"
+    remote_src: true
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0640"
+  become: true
+  when:
+    - _app_state == 'present'
+    - openliberty_deploy_backup | bool
+    - _existing_app.stat.exists | default(false)
+
+- name: Copy application archive from controller
+  ansible.builtin.copy:
+    src: "{{ _app.src }}"
+    dest: "{{ _app_dest }}"
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0640"
+    backup: false
+  become: true
+  when:
+    - _app_state == 'present'
+    - _app.src is not match('^https?://')
+  notify: Restart Open Liberty service
+
+- name: Download application archive from URL
+  ansible.builtin.get_url:
+    url: "{{ _app.src }}"
+    dest: "{{ _app_dest }}"
+    checksum: "{{ _app.checksum | default(omit) }}"
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0640"
+    timeout: 120
+  become: true
+  when:
+    - _app_state == 'present'
+    - _app.src is match('^https?://')
+  notify: Restart Open Liberty service
+
+- name: Flush handlers before readiness probe
+  ansible.builtin.meta: flush_handlers
+  when:
+    - _app_state == 'present'
+    - openliberty_deploy_validate | bool
+
+- name: Determine context root for readiness probe
+  ansible.builtin.set_fact:
+    _app_context_root: "{{ _app.context_root | default('/' + _app.name) }}"
+  when:
+    - _app_state == 'present'
+    - openliberty_deploy_validate | bool
+
+- name: Wait for application to respond on context root
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ openliberty_http_port }}{{ _app_context_root }}"
+    method: GET
+    status_code: [200, 201, 302, 403, 404]
+    timeout: 10
+  register: _app_probe
+  retries: "{{ (openliberty_deploy_wait_timeout | int // openliberty_deploy_wait_delay | int) | int }}"
+  delay: "{{ openliberty_deploy_wait_delay }}"
+  until: _app_probe.status in [200, 201, 302, 403, 404]
+  when:
+    - _app_state == 'present'
+    - openliberty_deploy_validate | bool

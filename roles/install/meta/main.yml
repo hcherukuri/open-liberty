@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: Ansible-Middleware Team
+  description: Download, verify, and extract Open Liberty application server
+  license: GPL-2.0-only
+  min_ansible_version: "2.16"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+        - "10"
+  galaxy_tags:
+    - openliberty
+    - liberty
+    - java
+    - jakarta
+    - middleware
+dependencies: []

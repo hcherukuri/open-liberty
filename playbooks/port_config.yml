@@ -1,0 +1,27 @@
+---
+# Reconfigure HTTP/HTTPS ports via configDropins (base server.xml untouched).
+#   ansible-playbook -i inventory.ini playbooks/port_config.yml \
+#     -e openliberty_http_port=8080 -e openliberty_https_port=8443
+- name: Reconfigure Open Liberty listener ports
+  hosts: liberty_servers
+  gather_facts: true
+  vars:
+    openliberty_server_name: defaultServer
+    openliberty_home: /opt/openliberty/wlp
+    openliberty_user: liberty
+    openliberty_group: liberty
+    openliberty_http_port: 9080
+    openliberty_https_port: 9443
+    openliberty_https_enabled: true
+    openliberty_endpoint_host: "*"
+    openliberty_port_manage_firewall: false
+    openliberty_firewall_zone: public
+  roles:
+    - role: middleware_automation.open_liberty.port_config
+  post_tasks:
+    - name: Confirm HTTP port is accepting connections
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: "{{ openliberty_http_port }}"
+        timeout: 60
+        msg: "Timed out waiting for port {{ openliberty_http_port }} after port reconfiguration."

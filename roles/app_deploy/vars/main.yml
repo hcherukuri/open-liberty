@@ -1,0 +1,12 @@
+---
+# app_deploy – vars
+# Computed paths used across tasks.
+
+# Absolute paths to the Liberty server directories.
+_openliberty_server_dir: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}"
+_openliberty_apps_dir: "{{ _openliberty_server_dir }}/apps"
+_openliberty_dropins_dir: "{{ _openliberty_server_dir }}/{{ openliberty_dropins_dir }}"
+
+# Destination directory chosen based on deployment mode.
+_openliberty_deploy_dest_dir: >-
+  {{ _openliberty_dropins_dir if openliberty_deploy_to_dropins | bool else _openliberty_apps_dir }}

@@ -1,0 +1,34 @@
+---
+openliberty_server_name: defaultServer
+
+# Feature set selector: kernel, webProfile, jakartaee, microProfile
+openliberty_edition: webProfile
+
+openliberty_home: /opt/openliberty/wlp
+openliberty_user: liberty
+openliberty_group: liberty
+
+openliberty_http_port: 9080
+openliberty_https_port: 9443
+openliberty_https_enabled: true
+openliberty_server_create: true
+openliberty_server_description: "Open Liberty Server managed by Ansible"
+
+# Extra features beyond the edition defaults, e.g. ["jdbc-4.3", "jndi-1.0"]
+openliberty_extra_features: []
+
+# dataSource stanzas for server.xml (id, jdbcDriverRef, databaseName/url, user, password).
+openliberty_datasources: []
+
+openliberty_jvm_options: []
+
+# Key-value pairs for bootstrap.properties.
+openliberty_bootstrap_properties: {}
+
+openliberty_configure_logging: true
+openliberty_log_level: "INFO"
+openliberty_log_max_file_size: 20
+openliberty_log_max_files: 5
+
+# Empty → default ${server.output.dir}/logs
+openliberty_log_dir: ""

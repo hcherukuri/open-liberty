@@ -1,0 +1,49 @@
+---
+# Install Java on RedHat-family hosts.
+# RHEL 8: use the dnf CLI — ansible.builtin.dnf needs platform-python bindings
+# that are incompatible with the python39 interpreter required by ansible-core 2.18+.
+- name: Install Java (RedHat family, RHEL 8)
+  ansible.builtin.command:
+    cmd: "dnf install -y {{ openliberty_java_package_name }}"
+  become: true
+  register: _openliberty_java_rhel8
+  changed_when: >-
+    'Installing:' in _openliberty_java_rhel8.stdout
+    or 'Installed:' in _openliberty_java_rhel8.stdout
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version | int == 8
+
+- name: Install Java (RedHat family, RHEL 9+)
+  ansible.builtin.dnf:
+    name: "{{ openliberty_java_package_name }}"
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version | int != 8
+
+# Install Java on Debian-family hosts.
+- name: Install Java (Debian family)
+  ansible.builtin.apt:
+    name: "{{ openliberty_java_package_name_debian }}"
+    state: present
+    update_cache: true
+  become: true
+  when: ansible_os_family == "Debian"
+
+# Package layouts differ across distros; resolve JAVA_HOME from the java binary.
+- name: Discover JAVA_HOME from installed java binary
+  ansible.builtin.command:
+    cmd: readlink -f /usr/bin/java
+  register: _openliberty_java_bin
+  changed_when: false
+  failed_when: false
+  become: true
+
+- name: Set openliberty_java_home from discovered java binary
+  ansible.builtin.set_fact:
+    openliberty_java_home: "{{ _openliberty_java_bin.stdout | dirname | dirname }}"
+  when:
+    - _openliberty_java_bin.rc | default(1) == 0
+    - _openliberty_java_bin.stdout | length > 0

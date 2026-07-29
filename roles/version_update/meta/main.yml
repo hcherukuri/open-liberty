@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  author: Ansible-Middleware Team
+  description: >
+    In-place upgrade of an existing Open Liberty installation to a new version
+    with optional backup and zero-downtime sequencing.
+  license: GPL-2.0-only
+  min_ansible_version: "2.16"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+        - "10"
+  galaxy_tags:
+    - openliberty
+    - liberty
+    - java
+    - jakarta
+    - middleware
+    - upgrade
+dependencies: []

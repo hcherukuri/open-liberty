@@ -1,0 +1,71 @@
+---
+# Open Liberty version to install.
+# See https://openliberty.io/downloads/ for available versions.
+openliberty_version: "24.0.0.9"
+
+# Edition to install. Friendly names are mapped to Maven artifacts:
+#   kernel / webProfile / jakartaee / microProfile
+# Explicit Maven suffixes also accepted (webProfile10, microProfile6, jakartaee10, …).
+openliberty_edition: "webProfile"
+
+# Base download URL for Open Liberty archives on Maven Central.
+# The archive filename pattern is openliberty-<edition>-<version>.zip
+# (edition omitted for kernel: openliberty-<version>.zip)
+openliberty_download_base_url: "https://repo1.maven.org/maven2/io/openliberty"
+
+# Override the full download URL to use a local mirror or pre-staged artifact.
+# When left empty (default) the URL is computed from openliberty_download_base_url,
+# openliberty_edition, and openliberty_version.
+openliberty_download_url: ""
+
+# Optional SHA-256 checksum for the downloaded archive ("sha256:<hex>").
+# Leave empty to skip checksum verification.
+openliberty_download_checksum: ""
+
+# Directory where the downloaded archive is placed temporarily.
+openliberty_install_workdir: /tmp
+
+# Base installation directory. Liberty is unpacked into a subdirectory named
+# "wlp" inside this directory, matching the upstream ZIP layout.
+openliberty_install_dir: /opt/openliberty
+
+# Full path to the wlp home directory (computed; override only if non-standard).
+openliberty_home: "{{ openliberty_install_dir }}/wlp"
+
+# System user that owns the installation and runs the server process.
+openliberty_user: liberty
+openliberty_group: liberty
+
+# Whether to create the system user/group. Set to false if they are managed
+# externally (e.g. via LDAP or a corporate provisioning tool).
+openliberty_manage_user: true
+
+# Shell for the service account (no interactive login by default).
+openliberty_user_shell: /sbin/nologin
+
+# Whether to install Java if it is not already present.
+# When true, the default Java package for the OS family is installed.
+openliberty_install_java: false
+
+# OpenJDK major version to install when openliberty_install_java is true.
+# UBI 10 ships Java 21 in base repos (Java 17 is not available there).
+openliberty_java_version: "17"
+
+# RedHat-family package name derived from openliberty_java_version.
+openliberty_java_package_name: >-
+  {{ 'java-1.8.0-openjdk-headless' if openliberty_java_version | string == '1.8'
+     else 'java-' ~ (openliberty_java_version | string) ~ '-openjdk-headless' }}
+
+# Debian-family package name derived from openliberty_java_version.
+openliberty_java_package_name_debian: >-
+  openjdk-{{ openliberty_java_version }}-jdk-headless
+
+# Java home directory used at runtime.
+# When openliberty_install_java is true, this is overwritten from the installed java binary.
+openliberty_java_home: /usr/lib/jvm/java-17-openjdk
+
+# Number of retries for the archive download.
+openliberty_download_retries: 3
+
+# Timeout (seconds) per download attempt.
+openliberty_download_timeout: 600

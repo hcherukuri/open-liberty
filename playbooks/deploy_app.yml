@@ -1,0 +1,23 @@
+---
+# Deploy WAR/EAR/JAR apps to a running Open Liberty server.
+#   ansible-playbook -i inventory.ini playbooks/deploy_app.yml \
+#     -e '{"openliberty_applications": [{"name": "myapp", "src": "/path/to/myapp.war", "context_root": "/myapp"}]}'
+- name: Deploy applications to Open Liberty
+  hosts: liberty_servers
+  gather_facts: true
+  vars:
+    openliberty_server_name: defaultServer
+    openliberty_home: /opt/openliberty/wlp
+    openliberty_user: liberty
+    openliberty_group: liberty
+    openliberty_http_port: 9080
+    openliberty_deploy_to_dropins: false
+    openliberty_deploy_validate: true
+    openliberty_deploy_backup: true
+    openliberty_applications:
+      - name: myapp
+        src: /path/to/myapp.war
+        context_root: /myapp
+        state: present
+  roles:
+    - role: middleware_automation.open_liberty.app_deploy

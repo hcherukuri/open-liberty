@@ -1,0 +1,36 @@
+---
+# The upstream ZIP always contains a top-level "wlp/" directory. We extract
+# directly into openliberty_install_dir so the final path becomes
+# {{ openliberty_install_dir }}/wlp.
+
+- name: Check whether wlp directory already exists
+  ansible.builtin.stat:
+    path: "{{ openliberty_install_dir }}/wlp"
+  register: _openliberty_wlp_dir
+
+- name: Extract Open Liberty archive
+  ansible.builtin.unarchive:
+    src: "{{ openliberty_install_workdir }}/{{ _openliberty_archive_filename }}"
+    dest: "{{ openliberty_install_dir }}"
+    remote_src: true
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    creates: "{{ openliberty_install_dir }}/wlp"
+  become: true
+  when: not _openliberty_wlp_dir.stat.exists
+
+- name: Ensure correct ownership of wlp directory tree
+  ansible.builtin.file:
+    path: "{{ openliberty_install_dir }}/wlp"
+    state: directory
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    recurse: true
+  become: true
+
+- name: Remove downloaded archive
+  ansible.builtin.file:
+    path: "{{ openliberty_install_workdir }}/{{ _openliberty_archive_filename }}"
+    state: absent
+  become: false
+  when: _openliberty_download is defined and _openliberty_download is changed

@@ -1,0 +1,123 @@
+---
+# version_update – main task entry point
+# In-place upgrade of an Open Liberty installation to openliberty_new_version.
+# Reference: https://openliberty.io/docs/latest/zero-migration-architecture.html
+
+- name: Resolve update archive URL and filename
+  ansible.builtin.set_fact:
+    _openliberty_update_url: "{{ openliberty_update_archive_url | trim }}"
+    _openliberty_update_file: "{{ openliberty_update_archive_filename | trim }}"
+
+- name: Check current installed version
+  ansible.builtin.slurp:
+    src: "{{ openliberty_home }}/lib/versions/openliberty.properties"
+  register: _openliberty_current_props
+  become: true
+  failed_when: false
+
+- name: Parse current version from properties file
+  ansible.builtin.set_fact:
+    _openliberty_installed_version: >-
+      {{ (_openliberty_current_props.content | b64decode)
+         | regex_search('com\\.ibm\\.websphere\\.productVersion=(.+)', '\\1')
+         | first | default('unknown') | trim }}
+  when: not _openliberty_current_props.failed
+
+- name: Report currently installed version
+  ansible.builtin.debug:
+    msg: "Currently installed version: {{ _openliberty_installed_version | default('unknown') }}"
+
+- name: Skip upgrade when already at target version
+  ansible.builtin.meta: end_play
+  when:
+    - _openliberty_installed_version is defined
+    - _openliberty_installed_version == openliberty_new_version
+
+- name: Stop Open Liberty service before upgrade
+  ansible.builtin.systemd:
+    name: "{{ openliberty_service_name }}"
+    state: stopped
+  become: true
+  failed_when: false  # may not be running
+
+- name: Capture backup timestamp
+  ansible.builtin.set_fact:
+    _openliberty_backup_ts: "{{ ansible_date_time.iso8601_basic_short }}"
+  when: openliberty_update_backup | bool
+
+- name: Back up existing wlp directory
+  ansible.builtin.copy:
+    src: "{{ openliberty_home }}/"
+    dest: "{{ openliberty_install_dir }}/wlp.backup.{{ _openliberty_backup_ts }}"
+    remote_src: true
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: preserve
+  become: true
+  when: openliberty_update_backup | bool
+
+- name: Download new Open Liberty archive
+  ansible.builtin.get_url:
+    url: "{{ _openliberty_update_url }}"
+    dest: "{{ openliberty_install_workdir }}/{{ _openliberty_update_file }}"
+    checksum: "{{ openliberty_download_checksum if openliberty_download_checksum | length > 0 else omit }}"
+    timeout: "{{ openliberty_download_timeout }}"
+    mode: "0644"
+  register: _openliberty_update_download
+  retries: "{{ openliberty_download_retries }}"
+  delay: 10
+  until: _openliberty_update_download is succeeded
+
+- name: Remove old wlp directory
+  ansible.builtin.file:
+    path: "{{ openliberty_home }}"
+    state: absent
+  become: true
+
+- name: Extract new Open Liberty archive
+  ansible.builtin.unarchive:
+    src: "{{ openliberty_install_workdir }}/{{ _openliberty_update_file }}"
+    dest: "{{ openliberty_install_dir }}"
+    remote_src: true
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+  become: true
+
+- name: Ensure correct ownership of new wlp directory
+  ansible.builtin.file:
+    path: "{{ openliberty_home }}"
+    state: directory
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    recurse: true
+  become: true
+
+- name: Remove downloaded update archive
+  ansible.builtin.file:
+    path: "{{ openliberty_install_workdir }}/{{ _openliberty_update_file }}"
+    state: absent
+
+- name: Verify server script exists after upgrade
+  ansible.builtin.stat:
+    path: "{{ openliberty_home }}/bin/server"
+  register: _openliberty_new_server_script
+
+- name: Fail if server script is missing after upgrade
+  ansible.builtin.fail:
+    msg: >
+      Upgrade failed – {{ openliberty_home }}/bin/server not found after extraction.
+      The backup is available at {{ openliberty_install_dir }}/wlp.backup.{{ _openliberty_backup_ts | default('unknown') }}.
+  when: not _openliberty_new_server_script.stat.exists
+
+- name: Start Open Liberty service after upgrade
+  ansible.builtin.systemd:
+    name: "{{ openliberty_service_name }}"
+    state: started
+    enabled: true
+  become: true
+
+- name: Report successful upgrade
+  ansible.builtin.debug:
+    msg: >
+      Open Liberty upgraded from {{ _openliberty_installed_version | default('unknown') }}
+      to {{ openliberty_new_version }} successfully.

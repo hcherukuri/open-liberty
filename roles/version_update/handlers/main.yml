@@ -1,0 +1,9 @@
+---
+# version_update – handlers
+
+- name: Restart Open Liberty service
+  ansible.builtin.systemd:
+    name: "{{ openliberty_service_name }}"
+    state: restarted
+  become: true
+  listen: Restart Open Liberty service

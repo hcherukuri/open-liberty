@@ -1,0 +1,46 @@
+---
+# converge.yml – app_deploy scenario
+# Runs the app_deploy role twice:
+#   Pass 1 – explicit server.xml (configDropins) mode
+#   Pass 2 – dropins mode
+- name: Converge – Application Deployment
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Deploy sample.war via configDropins (explicit server.xml mode)
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.app_deploy
+      vars:
+        openliberty_deploy_to_dropins: false
+        openliberty_deploy_validate: false  # no servlet, skip HTTP probe
+        openliberty_deploy_backup: true
+        openliberty_applications:
+          - name: sample
+            src: /tmp/sample.war
+            context_root: /sample
+            state: present
+
+    - name: Remove sample.war from apps/ dir
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.app_deploy
+      vars:
+        openliberty_deploy_to_dropins: false
+        openliberty_deploy_validate: false
+        openliberty_deploy_backup: false
+        openliberty_applications:
+          - name: sample
+            src: /tmp/sample.war
+            state: absent
+
+    - name: Deploy sample.war via dropins directory
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.app_deploy
+      vars:
+        openliberty_deploy_to_dropins: true
+        openliberty_deploy_validate: false
+        openliberty_deploy_backup: false
+        openliberty_applications:
+          - name: sample
+            src: /tmp/sample.war
+            state: present

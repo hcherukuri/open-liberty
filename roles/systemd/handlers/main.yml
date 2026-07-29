@@ -1,0 +1,13 @@
+---
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  listen: Reload systemd daemon
+
+- name: Restart Open Liberty service
+  ansible.builtin.systemd:
+    name: "{{ openliberty_service_name }}"
+    state: restarted
+  become: true
+  listen: Restart Open Liberty service

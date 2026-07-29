@@ -1,0 +1,52 @@
+---
+# ansible-lint configuration
+# https://ansible-lint.readthedocs.io/en/latest/configuring/
+profile: production
+
+exclude_paths:
+  - .cache/
+  - .github/
+  - molecule/
+  - .ansible-lint
+  - .yamllint.yml
+  - playbooks/
+  - docs/
+  - changelogs/changelog.yaml
+
+rulesdir:
+  - ../../ansible-lint-custom-rules/rules/
+
+enable_list:
+  - fqcn-builtins
+  - no-log-password
+
+skip_list:
+  - "204"
+  - blocked_modules
+  - file_is_small_enough
+  - vars_should_not_be_used
+  - role_vars_start_with_role_name
+  - name[template]
+  - name[prefix]
+  - var-naming[no-role-prefix]
+
+warn_list:
+  - experimental
+  - ignore-errors
+  - no-handler
+  - fqcn-builtins
+  - no-log-password
+  - unnamed-task
+  - command-instead-of-module
+  - no-changed-when
+  - task_has_valid_name
+  - internal-error
+  - jinja[spacing]
+  - fqcn[action]
+  - name[casing]
+  - yaml[comments]
+  - meta-runtime[unsupported-version]
+  - risky-file-permissions
+  - yaml[line-length]
+
+use_default_rules: true

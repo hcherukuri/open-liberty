@@ -1,0 +1,26 @@
+---
+# Install then uninstall; assert files, unit, user, and port are removed.
+# Platforms from .config/molecule/config.yml.
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_FORCE_COLOR: "true"
+  playbooks:
+    prepare: ../prepare.yml
+    converge: converge.yml
+    verify: verify.yml
+  inventory:
+    group_vars:
+      all:
+        openliberty_version: "24.0.0.9"
+        openliberty_edition: webProfile
+        openliberty_server_name: defaultServer
+        openliberty_http_port: 9080
+        openliberty_install_java: true
+        openliberty_validate_health_endpoint: false
+        openliberty_remove_user: true
+        openliberty_remove_group: true
+
+verifier:
+  name: ansible

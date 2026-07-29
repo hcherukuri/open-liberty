@@ -1,0 +1,20 @@
+---
+# Install Jakarta EE Platform (Full Platform) edition.
+- name: Install Open Liberty – Jakarta EE Platform
+  hosts: liberty_servers
+  gather_facts: true
+  vars:
+    openliberty_version: "24.0.0.9"
+    openliberty_edition: jakartaee
+    openliberty_server_name: jakartaServer
+    openliberty_http_port: 9080
+    openliberty_https_port: 9443
+    openliberty_install_java: true
+    openliberty_jvm_options:
+      - "-Xms1024m"
+      - "-Xmx2048m"
+  roles:
+    - role: middleware_automation.open_liberty.install
+    - role: middleware_automation.open_liberty.server_config
+    - role: middleware_automation.open_liberty.systemd
+    - role: middleware_automation.open_liberty.validation

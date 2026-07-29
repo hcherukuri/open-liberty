@@ -1,0 +1,19 @@
+---
+- name: Verify wlp/bin/server script exists
+  ansible.builtin.stat:
+    path: "{{ openliberty_home }}/bin/server"
+  register: _openliberty_server_script
+
+- name: Fail if server script is missing
+  ansible.builtin.fail:
+    msg: >
+      Open Liberty installation at {{ openliberty_home }} appears incomplete —
+      {{ openliberty_home }}/bin/server was not found.
+      Check the archive download and extraction steps.
+  when: not _openliberty_server_script.stat.exists
+
+- name: Check server binary is executable
+  ansible.builtin.assert:
+    that: _openliberty_server_script.stat.xusr or _openliberty_server_script.stat.xgrp
+    fail_msg: "{{ openliberty_home }}/bin/server exists but is not executable."
+    success_msg: "Open Liberty installation verified at {{ openliberty_home }}."

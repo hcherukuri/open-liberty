@@ -1,0 +1,38 @@
+---
+# app_deploy – main task entry point
+# Reference: https://openliberty.io/docs/latest/deploy-war-ear.html
+
+- name: Ensure application deployment directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0750"
+  become: true
+  loop:
+    - "{{ _openliberty_apps_dir }}"
+    - "{{ _openliberty_dropins_dir }}"
+
+- name: Deploy application archives
+  ansible.builtin.include_tasks: deploy_app.yml
+  loop: "{{ openliberty_applications }}"
+  loop_control:
+    loop_var: _app
+    label: "{{ _app.name }}"
+  when: openliberty_applications | length > 0
+
+- name: Update server.xml application entries (non-dropins mode)
+  ansible.builtin.template:
+    src: server_apps_fragment.xml.j2
+    dest: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/configDropins/overrides/app_deploy.xml"
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0640"
+    backup: true
+  become: true
+  when:
+    - not openliberty_deploy_to_dropins | bool
+    - openliberty_applications | selectattr('state', 'undefined') | list | length > 0
+      or openliberty_applications | selectattr('state', 'equalto', 'present') | list | length > 0
+  notify: Restart Open Liberty service

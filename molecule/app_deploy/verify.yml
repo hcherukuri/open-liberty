@@ -1,0 +1,65 @@
+---
+# verify.yml – app_deploy scenario
+- name: Verify Application Deployment
+  hosts: all
+  gather_facts: false
+
+  vars:
+    _ol_server_dir: /opt/openliberty/wlp/usr/servers/defaultServer
+
+  tasks:
+    - name: Check configDropins override XML was written
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/configDropins/overrides/app_deploy.xml"
+      register: _app_xml
+
+    - name: Assert configDropins override file exists
+      ansible.builtin.assert:
+        that: _app_xml.stat.exists
+        fail_msg: "configDropins/overrides/app_deploy.xml was not created by app_deploy role"
+        success_msg: "configDropins override XML present"
+
+    - name: Check apps/ directory exists
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/apps"
+      register: _apps_dir
+
+    - name: Assert apps/ directory exists
+      ansible.builtin.assert:
+        that: _apps_dir.stat.isdir
+        fail_msg: "apps/ directory was not created"
+        success_msg: "apps/ directory present"
+
+    - name: Check sample.war is present in dropins/
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/dropins/sample.war"
+      register: _dropins_war
+
+    - name: Assert sample.war deployed to dropins/
+      ansible.builtin.assert:
+        that: _dropins_war.stat.exists
+        fail_msg: "sample.war not found in dropins/ – app_deploy dropins mode failed"
+        success_msg: "sample.war present in dropins/"
+
+    - name: Find any .bak files left by the backup step
+      ansible.builtin.find:
+        paths: "{{ _ol_server_dir }}/apps"
+        patterns: "*.bak"
+      register: _bak_files
+
+    - name: Assert at least one timestamped backup was created
+      ansible.builtin.assert:
+        that: _bak_files.matched >= 1
+        fail_msg: "No .bak backup archive found – backup step may not have run"
+        success_msg: "Timestamped backup archive present: {{ _bak_files.files | map(attribute='path') | list }}"
+
+    - name: Check dropins/ WAR is owned by liberty user
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/dropins/sample.war"
+      register: _war_stat
+
+    - name: Assert WAR is owned by liberty
+      ansible.builtin.assert:
+        that: _war_stat.stat.pw_name == 'liberty'
+        fail_msg: "sample.war is not owned by the liberty user (owner: {{ _war_stat.stat.pw_name }})"
+        success_msg: "sample.war ownership correct (liberty)"

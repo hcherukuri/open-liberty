@@ -1,0 +1,5 @@
+# jvm.options – managed by Ansible
+# One JVM option per line.
+{% for opt in openliberty_jvm_options %}
+{{ opt }}
+{% endfor %}

@@ -1,0 +1,45 @@
+[Unit]
+Description=Open Liberty Application Server ({{ openliberty_server_name }})
+Documentation=https://openliberty.io/docs/latest/overview.html
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ openliberty_user }}
+Group={{ openliberty_group }}
+
+WorkingDirectory={{ openliberty_home }}
+
+# Verify the server script and JAVA_HOME exist before starting.
+ExecStartPre=/usr/bin/test -x {{ openliberty_home }}/bin/server
+ExecStartPre=/usr/bin/test -d {{ openliberty_java_home }}
+
+# Run the Liberty server in the foreground (reliable under systemd/containers).
+ExecStart={{ openliberty_home }}/bin/server run {{ openliberty_server_name }}
+
+# Stop the Liberty server gracefully.
+ExecStop={{ openliberty_home }}/bin/server stop {{ openliberty_server_name }}
+
+TimeoutStartSec={{ openliberty_service_start_timeout }}
+TimeoutStopSec=30
+
+Restart=on-failure
+RestartSec=10s
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier={{ openliberty_service_name }}
+
+# Java environment
+Environment="JAVA_HOME={{ openliberty_java_home }}"
+Environment="PATH={{ openliberty_java_home }}/bin:/usr/bin:/bin"
+{% if openliberty_jvm_options | length > 0 %}
+Environment="JVM_ARGS={{ openliberty_jvm_options | join(' ') }}"
+{% endif %}
+{% for env_var in openliberty_service_env_vars %}
+Environment="{{ env_var.key }}={{ env_var.value }}"
+{% endfor %}
+
+[Install]
+WantedBy=multi-user.target

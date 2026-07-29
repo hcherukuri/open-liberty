@@ -1,0 +1,40 @@
+---
+# Mirror ansible-middleware/wildfly RHEL 8 bootstrap: UBI 8 has no /usr/bin/python3
+# by default, and ansible-core 2.18+ needs Python 3.9+ on the managed node.
+- name: Prepare for RHEL 8
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Enable Python 3.9 on RHEL 8
+      ansible.builtin.raw: dnf module enable -y python39
+      register: _openliberty_enable_python39
+      changed_when: "'Installing:' in _openliberty_enable_python39.stdout"
+      when: inventory_hostname == 'instance-rhel8'
+
+    - name: Install Python 3.9 on RHEL 8
+      ansible.builtin.raw: dnf install -y python39
+      register: _openliberty_install_python39
+      changed_when: "'Installing:' in _openliberty_install_python39.stdout"
+      when: inventory_hostname == 'instance-rhel8'
+
+- name: Bootstrap molecule instances
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install sudo on UBI images
+      ansible.builtin.raw: >
+        (command -v sudo >/dev/null) ||
+        dnf install -y sudo ||
+        microdnf install -y sudo ||
+        yum install -y sudo
+      changed_when: false
+
+    # ansible.builtin.package/dnf need the dnf Python bindings, which on UBI 8
+    # are only wired to platform-python. Pre-install unzip with raw dnf instead.
+    - name: Install unzip on UBI images
+      ansible.builtin.raw: >
+        (command -v unzip >/dev/null) ||
+        dnf install -y unzip ||
+        microdnf install -y unzip ||
+        yum install -y unzip
+      changed_when: false

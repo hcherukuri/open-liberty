@@ -1,0 +1,41 @@
+---
+- name: Create Liberty server instance
+  ansible.builtin.command:
+    cmd: "{{ openliberty_home }}/bin/server create {{ openliberty_server_name }}"
+    creates: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}"
+  become: true
+  become_user: "{{ openliberty_user }}"
+  when: openliberty_server_create | bool
+
+- name: Deploy server.xml
+  ansible.builtin.template:
+    src: server.xml.j2
+    dest: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/server.xml"
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0640"
+    backup: true
+  become: true
+  notify: Restart Open Liberty service
+
+- name: Deploy jvm.options
+  ansible.builtin.template:
+    src: jvm.options.j2
+    dest: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/jvm.options"
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0640"
+  become: true
+  when: openliberty_jvm_options | length > 0
+  notify: Restart Open Liberty service
+
+- name: Deploy bootstrap.properties
+  ansible.builtin.template:
+    src: bootstrap.properties.j2
+    dest: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/bootstrap.properties"
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0640"
+  become: true
+  when: openliberty_bootstrap_properties | length > 0
+  notify: Restart Open Liberty service

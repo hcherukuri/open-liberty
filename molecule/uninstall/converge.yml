@@ -1,0 +1,31 @@
+---
+# converge.yml – uninstall scenario
+# Phase 1: full Liberty install (install + server_config + systemd).
+# Phase 2: run the uninstall role to tear everything down.
+- name: Converge – Uninstall
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Install Open Liberty
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.install
+
+    - name: Configure server
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.server_config
+
+    - name: Enable and start Liberty service
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.systemd
+
+    - name: Wait for Liberty to start
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: "{{ openliberty_http_port }}"
+        timeout: 120
+        delay: 5
+
+    - name: Run uninstall role
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.uninstall

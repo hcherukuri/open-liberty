@@ -1,0 +1,74 @@
+---
+# port_config – main task entry point
+# Reconfigures httpEndpoint ports in server.xml and manages firewall rules.
+# Reference: https://openliberty.io/docs/latest/reference/config/httpEndpoint.html
+
+- name: Ensure configDropins/overrides directory exists
+  ansible.builtin.file:
+    path: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/configDropins/overrides"
+    state: directory
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0750"
+  become: true
+
+- name: Deploy httpEndpoint configuration override
+  ansible.builtin.template:
+    src: httpEndpoint.xml.j2
+    dest: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/configDropins/overrides/port_config.xml"
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0640"
+    backup: true
+  become: true
+  notify: Restart Open Liberty service
+
+- name: Open HTTP port in firewalld
+  ansible.posix.firewalld:
+    port: "{{ openliberty_http_port }}/tcp"
+    zone: "{{ openliberty_firewall_zone }}"
+    state: enabled
+    permanent: true
+    immediate: true
+  become: true
+  when:
+    - openliberty_port_manage_firewall | bool
+    - ansible_facts.os_family == 'RedHat'
+  notify: Reload firewalld
+
+- name: Open HTTPS port in firewalld
+  ansible.posix.firewalld:
+    port: "{{ openliberty_https_port }}/tcp"
+    zone: "{{ openliberty_firewall_zone }}"
+    state: enabled
+    permanent: true
+    immediate: true
+  become: true
+  when:
+    - openliberty_port_manage_firewall | bool
+    - openliberty_https_enabled | bool
+    - ansible_facts.os_family == 'RedHat'
+  notify: Reload firewalld
+
+- name: Allow HTTP port in ufw
+  community.general.ufw:
+    rule: allow
+    port: "{{ openliberty_http_port | string }}"
+    proto: tcp
+  become: true
+  when:
+    - openliberty_port_manage_firewall | bool
+    - ansible_facts.os_family == 'Debian'
+  notify: Reload ufw
+
+- name: Allow HTTPS port in ufw
+  community.general.ufw:
+    rule: allow
+    port: "{{ openliberty_https_port | string }}"
+    proto: tcp
+  become: true
+  when:
+    - openliberty_port_manage_firewall | bool
+    - openliberty_https_enabled | bool
+    - ansible_facts.os_family == 'Debian'
+  notify: Reload ufw

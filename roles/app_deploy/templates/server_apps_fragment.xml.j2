@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Managed by Ansible (app_deploy role) – do not edit by hand -->
+<!-- Reference: https://openliberty.io/docs/latest/reference/config/application.html -->
+<server>
+
+{% set present_apps = openliberty_applications | selectattr('state', 'undefined') | list
+   + openliberty_applications | selectattr('state', 'equalto', 'present') | list %}
+{% for app in present_apps %}
+{% set app_type = app.type | default(app.src | regex_replace('.*\\.', '')) %}
+    <!--
+        Application: {{ app.name }}
+        Type: {{ app_type }}
+        Source: {{ app.src | basename }}
+    -->
+    <application id="{{ app.name }}"
+                 name="{{ app.name }}"
+                 type="{{ app_type }}"
+                 location="${server.config.dir}/apps/{{ app.src | basename }}"
+{% if app.context_root is defined %}
+                 context-root="{{ app.context_root }}"
+{% endif %}
+    />
+
+{% endfor %}
+</server>

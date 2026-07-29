@@ -1,0 +1,24 @@
+---
+# Reconfigure HTTP/HTTPS listener ports; optional firewalld/ufw updates.
+# https://openliberty.io/docs/latest/reference/config/httpEndpoint.html
+
+openliberty_home: /opt/openliberty/wlp
+openliberty_server_name: defaultServer
+openliberty_user: liberty
+openliberty_group: liberty
+
+openliberty_http_port: 9080
+openliberty_https_port: 9443
+
+# false → httpsPort=-1 (HTTPS disabled on this endpoint).
+openliberty_https_enabled: true
+openliberty_endpoint_host: "*"
+openliberty_endpoint_id: defaultHttpEndpoint
+
+openliberty_http_max_keep_alive_requests: 100
+openliberty_http_persist_timeout: 30
+
+openliberty_port_manage_firewall: false
+openliberty_firewall_zone: public
+
+openliberty_service_name: "openliberty-{{ openliberty_server_name }}"

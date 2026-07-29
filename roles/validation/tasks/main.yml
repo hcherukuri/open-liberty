@@ -1,0 +1,10 @@
+---
+- name: Check systemd service status
+  ansible.builtin.include_tasks: check_service.yml
+
+- name: Wait for HTTP port to be open
+  ansible.builtin.include_tasks: wait_for_port.yml
+
+- name: Perform HTTP health check
+  ansible.builtin.include_tasks: health_check.yml
+  when: openliberty_validate_health_endpoint | bool

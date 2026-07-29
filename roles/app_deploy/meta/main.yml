@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  author: Ansible-Middleware Team
+  description: >
+    Deploy WAR, EAR, or JAR application archives to an Open Liberty server
+    via dropins or explicit server.xml <application> entries.
+  license: GPL-2.0-only
+  min_ansible_version: "2.16"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+        - "10"
+  galaxy_tags:
+    - openliberty
+    - liberty
+    - java
+    - jakarta
+    - middleware
+    - deploy
+dependencies: []
