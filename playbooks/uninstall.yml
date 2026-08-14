@@ -1,5 +1,7 @@
 ---
 # Stop the service and remove installation files, unit, and optional user/group.
+#   ansible-playbook -i inventory.ini playbooks/uninstall.yml \
+#     -e openliberty_remove_user=true -e openliberty_remove_group=true
 - name: Uninstall Open Liberty
   hosts: liberty_servers
   gather_facts: true

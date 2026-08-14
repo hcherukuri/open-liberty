@@ -10,7 +10,9 @@ openliberty_group: liberty
 
 openliberty_http_port: 9080
 openliberty_https_port: 9443
-openliberty_https_enabled: true
+# Disabled by default: this role does not configure SSL keystores/certificates.
+# Set true only after SSL is configured (or when using Liberty's default keystore).
+openliberty_https_enabled: false
 openliberty_server_create: true
 openliberty_server_description: "Open Liberty Server managed by Ansible"
 

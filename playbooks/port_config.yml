@@ -12,9 +12,9 @@
     openliberty_group: liberty
     openliberty_http_port: 9080
     openliberty_https_port: 9443
-    openliberty_https_enabled: true
+    openliberty_https_enabled: false
     openliberty_endpoint_host: "*"
-    openliberty_port_manage_firewall: false
+    openliberty_firewall_port_manage: false
     openliberty_firewall_zone: public
   roles:
     - role: middleware_automation.open_liberty.port_config

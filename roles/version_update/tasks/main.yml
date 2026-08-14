@@ -1,6 +1,7 @@
 ---
 # version_update – main task entry point
 # In-place upgrade of an Open Liberty installation to openliberty_new_version.
+# Upgrade runs only when the installed version is lower than openliberty_new_version.
 # Reference: https://openliberty.io/docs/latest/zero-migration-architecture.html
 
 - name: Resolve update archive URL and filename
@@ -27,11 +28,23 @@
   ansible.builtin.debug:
     msg: "Currently installed version: {{ _openliberty_installed_version | default('unknown') }}"
 
-- name: Skip upgrade when already at target version
+- name: Fail when requested version would downgrade the installation
+  ansible.builtin.fail:
+    msg: >
+      Refusing to downgrade Open Liberty from
+      {{ _openliberty_installed_version }} to {{ openliberty_new_version }}.
+      openliberty_new_version must be greater than the installed version.
+  when:
+    - _openliberty_installed_version is defined
+    - _openliberty_installed_version not in ['unknown', '']
+    - openliberty_new_version is version(_openliberty_installed_version, '<')
+
+- name: Skip upgrade when already at or beyond target version
   ansible.builtin.meta: end_play
   when:
     - _openliberty_installed_version is defined
-    - _openliberty_installed_version == openliberty_new_version
+    - _openliberty_installed_version not in ['unknown', '']
+    - _openliberty_installed_version is version(openliberty_new_version, '>=')
 
 - name: Stop Open Liberty service before upgrade
   ansible.builtin.systemd:
@@ -68,46 +81,69 @@
   delay: 10
   until: _openliberty_update_download is succeeded
 
-- name: Remove old wlp directory
-  ansible.builtin.file:
-    path: "{{ openliberty_home }}"
-    state: absent
-  become: true
+- name: Replace installation with new version
+  block:
+    - name: Remove old wlp directory
+      ansible.builtin.file:
+        path: "{{ openliberty_home }}"
+        state: absent
+      become: true
 
-- name: Extract new Open Liberty archive
-  ansible.builtin.unarchive:
-    src: "{{ openliberty_install_workdir }}/{{ _openliberty_update_file }}"
-    dest: "{{ openliberty_install_dir }}"
-    remote_src: true
-    owner: "{{ openliberty_user }}"
-    group: "{{ openliberty_group }}"
-  become: true
+    - name: Extract new Open Liberty archive
+      ansible.builtin.unarchive:
+        src: "{{ openliberty_install_workdir }}/{{ _openliberty_update_file }}"
+        dest: "{{ openliberty_install_dir }}"
+        remote_src: true
+        owner: "{{ openliberty_user }}"
+        group: "{{ openliberty_group }}"
+      become: true
 
-- name: Ensure correct ownership of new wlp directory
-  ansible.builtin.file:
-    path: "{{ openliberty_home }}"
-    state: directory
-    owner: "{{ openliberty_user }}"
-    group: "{{ openliberty_group }}"
-    recurse: true
-  become: true
+    - name: Ensure correct ownership of new wlp directory
+      ansible.builtin.file:
+        path: "{{ openliberty_home }}"
+        state: directory
+        owner: "{{ openliberty_user }}"
+        group: "{{ openliberty_group }}"
+        recurse: true
+      become: true
+
+    - name: Verify server script exists after upgrade
+      ansible.builtin.stat:
+        path: "{{ openliberty_home }}/bin/server"
+      register: _openliberty_new_server_script
+
+    - name: Fail if server script is missing after upgrade
+      ansible.builtin.fail:
+        msg: >
+          Upgrade failed – {{ openliberty_home }}/bin/server not found after extraction.
+      when: not _openliberty_new_server_script.stat.exists
+
+  rescue:
+    - name: Restore wlp directory from backup after upgrade failure
+      ansible.builtin.copy:
+        src: "{{ openliberty_install_dir }}/wlp.backup.{{ _openliberty_backup_ts }}/"
+        dest: "{{ openliberty_home }}/"
+        remote_src: true
+        owner: "{{ openliberty_user }}"
+        group: "{{ openliberty_group }}"
+        mode: preserve
+      become: true
+      when:
+        - openliberty_update_backup | bool
+        - _openliberty_backup_ts is defined
+
+    - name: Fail after rollback
+      ansible.builtin.fail:
+        msg: >
+          Upgrade to {{ openliberty_new_version }} failed and the previous installation
+          was restored from
+          {{ openliberty_install_dir }}/wlp.backup.{{ _openliberty_backup_ts | default('unknown') }}.
+          Original error: {{ ansible_failed_result.msg | default(ansible_failed_result | string) }}
 
 - name: Remove downloaded update archive
   ansible.builtin.file:
     path: "{{ openliberty_install_workdir }}/{{ _openliberty_update_file }}"
     state: absent
-
-- name: Verify server script exists after upgrade
-  ansible.builtin.stat:
-    path: "{{ openliberty_home }}/bin/server"
-  register: _openliberty_new_server_script
-
-- name: Fail if server script is missing after upgrade
-  ansible.builtin.fail:
-    msg: >
-      Upgrade failed – {{ openliberty_home }}/bin/server not found after extraction.
-      The backup is available at {{ openliberty_install_dir }}/wlp.backup.{{ _openliberty_backup_ts | default('unknown') }}.
-  when: not _openliberty_new_server_script.stat.exists
 
 - name: Start Open Liberty service after upgrade
   ansible.builtin.systemd:

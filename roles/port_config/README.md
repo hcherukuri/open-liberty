@@ -2,7 +2,7 @@
 
 Reconfigure the HTTP and HTTPS listener ports on a running Open Liberty server.
 Writes a `configDropins/overrides/port_config.xml` override file and optionally
-opens the new ports in firewalld.
+opens the new ports in firewalld/ufw.
 
 ## Requirements
 
@@ -11,43 +11,43 @@ opens the new ports in firewalld.
 - Open Liberty installed and running
   (see [`install`](../install/README.md), [`server_config`](../server_config/README.md), [`systemd`](../systemd/README.md))
 - `become: true` (root privileges)
-- `ansible.posix` collection (for firewalld) when `openliberty_port_manage_firewall: true`
+- `ansible.posix` collection (for firewalld) when `openliberty_firewall_port_manage: true`
 
 ## Role Variables
 
 ### Server connection
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_home` | `/opt/openliberty/wlp` | Liberty home directory |
-| `openliberty_server_name` | `defaultServer` | Server instance to reconfigure |
-| `openliberty_user` | `liberty` | Owner of the generated XML override file |
-| `openliberty_group` | `liberty` | Group of the generated XML override file |
-| `openliberty_service_name` | `openliberty-{{ openliberty_server_name }}` | systemd unit to restart after reconfiguration |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_home` | Liberty home directory | `/opt/openliberty/wlp` |
+| `openliberty_server_name` | Server instance to reconfigure | `defaultServer` |
+| `openliberty_user` | Owner of the generated XML override file | `liberty` |
+| `openliberty_group` | Group of the generated XML override file | `liberty` |
+| `openliberty_service_name` | systemd unit to restart after reconfiguration | `openliberty-{{ openliberty_server_name }}` |
 
 ### HTTP endpoint
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_http_port` | `9080` | HTTP port (`-1` to disable) |
-| `openliberty_https_port` | `9443` | HTTPS port (`-1` to disable) |
-| `openliberty_https_enabled` | `true` | Enable the HTTPS listener |
-| `openliberty_endpoint_host` | `"*"` | Network interface to bind; `"*"` = all interfaces |
-| `openliberty_endpoint_id` | `defaultHttpEndpoint` | `<httpEndpoint>` element ID in `server.xml` |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_http_port` | HTTP port (`-1` to disable) | `9080` |
+| `openliberty_https_port` | HTTPS port (`-1` to disable) | `9443` |
+| `openliberty_https_enabled` | Enable the HTTPS listener (requires SSL/keystore configuration for production) | `false` |
+| `openliberty_endpoint_host` | Network interface to bind; `"*"` = all interfaces | `"*"` |
+| `openliberty_endpoint_id` | `<httpEndpoint>` element ID in `server.xml` | `defaultHttpEndpoint` |
 
 ### HTTP options
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_http_max_keep_alive_requests` | `100` | Max persistent requests per connection (0 = unlimited) |
-| `openliberty_http_persist_timeout` | `30` | Keep-alive timeout in seconds (-1 = client timeout) |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_http_max_keep_alive_requests` | Max persistent requests per connection (0 = unlimited) | `100` |
+| `openliberty_http_persist_timeout` | Keep-alive timeout in seconds (-1 = client timeout) | `30` |
 
 ### Firewall management
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_port_manage_firewall` | `false` | Open firewall ports automatically |
-| `openliberty_firewall_zone` | `public` | firewalld zone (RHEL only) |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_firewall_port_manage` | Open firewall ports automatically | `false` |
+| `openliberty_firewall_zone` | firewalld zone (RHEL only) | `public` |
 
 ## Dependencies
 
@@ -66,7 +66,7 @@ opens the new ports in firewalld.
     openliberty_http_port: 8080
     openliberty_https_port: 8443
     openliberty_https_enabled: true
-    openliberty_port_manage_firewall: false
+    openliberty_firewall_port_manage: false
   roles:
     - role: middleware_automation.open_liberty.port_config
 ```
@@ -79,7 +79,7 @@ opens the new ports in firewalld.
   vars:
     openliberty_http_port: 8080
     openliberty_https_enabled: false
-    openliberty_port_manage_firewall: true
+    openliberty_firewall_port_manage: true
     openliberty_firewall_zone: internal
   roles:
     - role: middleware_automation.open_liberty.port_config
@@ -87,8 +87,8 @@ opens the new ports in firewalld.
 
 ## Molecule Tests
 
-| Scenario | What is tested |
-|---|---|
+| Scenario | Description |
+|:---------|:------------|
 | [`port_config`](../../molecule/port_config/) | Reconfigure from 9080→8080, verify new port open and old port closed |
 
 ## License

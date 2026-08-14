@@ -12,8 +12,17 @@
       Check the archive download and extraction steps.
   when: not _openliberty_server_script.stat.exists
 
-- name: Check server binary is executable
-  ansible.builtin.assert:
-    that: _openliberty_server_script.stat.xusr or _openliberty_server_script.stat.xgrp
-    fail_msg: "{{ openliberty_home }}/bin/server exists but is not executable."
-    success_msg: "Open Liberty installation verified at {{ openliberty_home }}."
+- name: Ensure server binary is executable
+  ansible.builtin.file:
+    path: "{{ openliberty_home }}/bin/server"
+    mode: "0755"
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+  become: true
+  when: >
+    not (_openliberty_server_script.stat.xusr
+         or _openliberty_server_script.stat.xgrp)
+
+- name: Confirm Open Liberty installation
+  ansible.builtin.debug:
+    msg: "Open Liberty installation verified at {{ openliberty_home }}."

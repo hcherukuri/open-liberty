@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Ansible-Middleware Team
+  author: Ansible Middleware Team
   description: Render and deploy server.xml and related configuration for Open Liberty
   license: GPL-2.0-only
   min_ansible_version: "2.16"
@@ -16,4 +16,5 @@ galaxy_info:
     - java
     - jakarta
     - middleware
+    - ibm
 dependencies: []

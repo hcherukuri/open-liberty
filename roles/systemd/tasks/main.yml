@@ -1,4 +1,6 @@
 ---
+# systemd – main task entry point
+# Deploy and manage the Open Liberty systemd service unit.
 - name: Ensure systemd service unit file is deployed
   ansible.builtin.template:
     src: openliberty.service.j2

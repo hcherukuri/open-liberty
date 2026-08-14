@@ -37,7 +37,7 @@
         openliberty_https_port: 8443
         openliberty_https_enabled: true
         openliberty_endpoint_host: "*"
-        openliberty_port_manage_firewall: false
+        openliberty_firewall_port_manage: false
 
     - name: Wait for Liberty to come up on new port 8080
       ansible.builtin.wait_for:

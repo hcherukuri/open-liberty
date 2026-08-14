@@ -1,6 +1,7 @@
 ---
 # Rolling upgrade: stop → reinstall → reconfigure → validate.
-# Pass -e openliberty_new_version=X.Y.Z.W
+#   ansible-playbook -i inventory.ini playbooks/upgrade.yml \
+#     -e openliberty_new_version=24.0.0.12
 - name: Upgrade Open Liberty
   hosts: liberty_servers
   gather_facts: true

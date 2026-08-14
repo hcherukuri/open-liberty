@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Ansible-Middleware Team
+  author: Ansible Middleware Team
   description: >
     Reconfigure HTTP and HTTPS listener ports on an Open Liberty server,
     update firewall rules, and restart the service.
@@ -19,4 +19,5 @@ galaxy_info:
     - jakarta
     - middleware
     - networking
+    - ibm
 dependencies: []

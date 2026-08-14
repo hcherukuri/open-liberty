@@ -6,6 +6,7 @@
   ansible.builtin.set_fact:
     _app_state: "{{ _app.state | default('present') }}"
     _app_type: "{{ _app.type | default(_app.src | regex_replace('.*\\.', '')) }}"
+    _app_src: "{{ _app.src }}"
     _app_filename: "{{ _app.src | basename }}"
 
 - name: Determine destination path for application
@@ -42,7 +43,7 @@
 
 - name: Copy application archive from controller
   ansible.builtin.copy:
-    src: "{{ _app.src }}"
+    src: "{{ _app_src }}"
     dest: "{{ _app_dest }}"
     owner: "{{ openliberty_user }}"
     group: "{{ openliberty_group }}"
@@ -51,12 +52,12 @@
   become: true
   when:
     - _app_state == 'present'
-    - _app.src is not match('^https?://')
+    - _app_src is not match('^https?://')
   notify: Restart Open Liberty service
 
 - name: Download application archive from URL
   ansible.builtin.get_url:
-    url: "{{ _app.src }}"
+    url: "{{ _app_src }}"
     dest: "{{ _app_dest }}"
     checksum: "{{ _app.checksum | default(omit) }}"
     owner: "{{ openliberty_user }}"
@@ -66,7 +67,7 @@
   become: true
   when:
     - _app_state == 'present'
-    - _app.src is match('^https?://')
+    - _app_src is match('^https?://')
   notify: Restart Open Liberty service
 
 - name: Flush handlers before readiness probe
@@ -86,12 +87,12 @@
   ansible.builtin.uri:
     url: "http://127.0.0.1:{{ openliberty_http_port }}{{ _app_context_root }}"
     method: GET
-    status_code: [200, 201, 302, 403, 404]
+    status_code: [200, 201, 301, 302, 403]
     timeout: 10
   register: _app_probe
   retries: "{{ (openliberty_deploy_wait_timeout | int // openliberty_deploy_wait_delay | int) | int }}"
   delay: "{{ openliberty_deploy_wait_delay }}"
-  until: _app_probe.status in [200, 201, 302, 403, 404]
+  until: _app_probe.status in [200, 201, 301, 302, 403]
   when:
     - _app_state == 'present'
     - openliberty_deploy_validate | bool

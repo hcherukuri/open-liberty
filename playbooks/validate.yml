@@ -1,5 +1,7 @@
 ---
 # Smoke-test a running Open Liberty instance.
+#   ansible-playbook -i inventory.ini playbooks/validate.yml \
+#     -e openliberty_validate_health_endpoint=false
 - name: Validate Open Liberty
   hosts: liberty_servers
   gather_facts: true

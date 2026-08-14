@@ -1,4 +1,6 @@
 ---
+# validation – main task entry point
+# Smoke-test a running Open Liberty instance (service, port, optional /health).
 - name: Check systemd service status
   ansible.builtin.include_tasks: check_service.yml
 

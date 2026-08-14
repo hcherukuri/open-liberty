@@ -1,5 +1,7 @@
 ---
 # Install Jakarta EE Platform (Full Platform) edition.
+#   ansible-playbook -i inventory.ini playbooks/install_jakartaee.yml \
+#     -e openliberty_edition=jakartaee -e openliberty_version=24.0.0.9
 - name: Install Open Liberty – Jakarta EE Platform
   hosts: liberty_servers
   gather_facts: true

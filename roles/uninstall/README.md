@@ -16,15 +16,15 @@ The role:
 
 ## Role Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_service_name` | `openliberty-{{ openliberty_server_name }}` | systemd unit to stop and remove |
-| `openliberty_server_name` | `defaultServer` | Liberty server name (used to derive the unit name) |
-| `openliberty_install_dir` | `/opt/openliberty` | Installation directory to delete |
-| `openliberty_user` | `liberty` | System user to remove |
-| `openliberty_group` | `liberty` | System group to remove |
-| `openliberty_remove_user` | `true` | Remove the system user when `true` |
-| `openliberty_remove_group` | `true` | Remove the system group when `true` |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_service_name` | systemd unit to stop and remove | `openliberty-{{ openliberty_server_name }}` |
+| `openliberty_server_name` | Liberty server name (used to derive the unit name) | `defaultServer` |
+| `openliberty_install_dir` | Installation directory to delete | `/opt/openliberty` |
+| `openliberty_user` | System user to remove | `liberty` |
+| `openliberty_group` | System group to remove | `liberty` |
+| `openliberty_remove_user` | Remove the system user when `true` | `true` |
+| `openliberty_remove_group` | Remove the system group when `true` | `true` |
 
 ## Dependencies
 
@@ -72,8 +72,8 @@ where the install role may have partially completed.
 
 ## Molecule Tests
 
-| Scenario | What is tested |
-|---|---|
+| Scenario | Description |
+|:---------|:------------|
 | [`uninstall`](../../molecule/uninstall/) | Full install then uninstall — asserts install dir, unit file, user, group, and port are all gone |
 | [`default`](../../molecule/default/) | Used as the cleanup step |
 

@@ -4,15 +4,18 @@ In-place upgrade of an existing Open Liberty installation to a newer version.
 
 The role:
 1. Reads the currently installed version from `openliberty.properties`.
-2. Skips the upgrade if the installed version already matches `openliberty_new_version`.
-3. Stops the Liberty service.
-4. Optionally backs up the existing `wlp/` directory.
-5. Downloads the new Liberty archive from Maven Central (or a custom URL).
-6. Removes the old `wlp/` tree and extracts the new archive.
-7. Restarts the Liberty service.
+2. Fails if `openliberty_new_version` would downgrade the installation.
+3. Skips the upgrade if the installed version is already greater than or equal to `openliberty_new_version`.
+4. Stops the Liberty service.
+5. Optionally backs up the existing `wlp/` directory.
+6. Downloads the new Liberty archive from Maven Central (or a custom URL).
+7. Removes the old `wlp/` tree and extracts the new archive.
+8. Rolls back from the backup if the upgrade fails.
+9. Restarts the Liberty service.
 
-Server configuration files (`server.xml`, `jvm.options`, `bootstrap.properties`) in
-`wlp/usr/servers/` are preserved because they live outside the `wlp/` binary tree.
+Server configuration files (`server.xml`, `jvm.options`, `bootstrap.properties`) under
+`wlp/usr/servers/` should be re-applied with the `server_config` role after upgrade when
+needed. Enable `openliberty_update_backup` so a failed upgrade can roll back.
 
 ## Requirements
 
@@ -26,43 +29,43 @@ Server configuration files (`server.xml`, `jvm.options`, `bootstrap.properties`)
 
 ### Target version
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_new_version` | `"24.0.0.9"` | Target version to upgrade to |
-| `openliberty_edition` | `webProfile` | Edition (must match the originally installed edition) |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_new_version` | Target version to upgrade to (must be newer than installed) | `"24.0.0.9"` |
+| `openliberty_edition` | Edition (must match the originally installed edition) | `webProfile` |
 
 ### Paths and ownership
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_install_dir` | `/opt/openliberty` | Base installation directory |
-| `openliberty_home` | `/opt/openliberty/wlp` | Liberty home directory |
-| `openliberty_install_workdir` | `/tmp` | Temporary directory for downloading the archive |
-| `openliberty_user` | `liberty` | File owner |
-| `openliberty_group` | `liberty` | File group |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_install_dir` | Base installation directory | `/opt/openliberty` |
+| `openliberty_home` | Liberty home directory | `/opt/openliberty/wlp` |
+| `openliberty_install_workdir` | Temporary directory for downloading the archive | `/tmp` |
+| `openliberty_user` | File owner | `liberty` |
+| `openliberty_group` | File group | `liberty` |
 
 ### Download
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_download_base_url` | `"https://repo1.maven.org/maven2/io/openliberty"` | Maven Central base URL |
-| `openliberty_download_url` | `""` | Full override URL (bypasses Maven Central lookup) |
-| `openliberty_download_checksum` | `""` | Optional `sha256:<hex>` checksum for the archive |
-| `openliberty_download_retries` | `3` | Download retry attempts |
-| `openliberty_download_timeout` | `600` | Seconds per download attempt |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_download_base_url` | Maven Central base URL | `"https://repo1.maven.org/maven2/io/openliberty"` |
+| `openliberty_download_url` | Full override URL (bypasses Maven Central lookup) | `""` |
+| `openliberty_download_checksum` | Optional `sha256:<hex>` checksum for the archive | `""` |
+| `openliberty_download_retries` | Download retry attempts | `3` |
+| `openliberty_download_timeout` | Seconds per download attempt | `600` |
 
 ### Backup
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_update_backup` | `true` | Back up `wlp/` to `{{ openliberty_install_dir }}/wlp.backup.<timestamp>` before upgrade |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_update_backup` | Back up `wlp/` to `{{ openliberty_install_dir }}/wlp.backup.<timestamp>` before upgrade | `true` |
 
 ### Service
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_service_name` | `openliberty-{{ openliberty_server_name }}` | systemd unit to stop/start during upgrade |
-| `openliberty_server_name` | `defaultServer` | Liberty server name |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_service_name` | systemd unit to stop/start during upgrade | `openliberty-{{ openliberty_server_name }}` |
+| `openliberty_server_name` | Liberty server name | `defaultServer` |
 
 ## Dependencies
 
@@ -110,9 +113,9 @@ vars:
 
 ## Molecule Tests
 
-| Scenario | What is tested |
-|---|---|
-| [`version_update`](../../molecule/version_update/) | Upgrade from 24.0.0.9 → 24.0.0.12, verify new version, backup directory, service active |
+| Scenario | Description |
+|:---------|:------------|
+| [`version_update`](../../molecule/version_update/) | Upgrade from 24.0.0.9 → 24.0.0.12, verify new version, backup directory, service active, and that a downgrade attempt fails |
 
 ## License
 

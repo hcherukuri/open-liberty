@@ -14,62 +14,62 @@ Create a Liberty server instance and render its configuration files
 
 ### Server identity
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_server_name` | `defaultServer` | Liberty server instance name |
-| `openliberty_edition` | `webProfile` | Edition — drives default feature set in `server.xml` |
-| `openliberty_server_create` | `true` | Run `server create` if the instance directory is absent |
-| `openliberty_server_description` | `"Open Liberty Server managed by Ansible"` | Free-text description written into `server.xml` |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_server_name` | Liberty server instance name | `defaultServer` |
+| `openliberty_edition` | Edition — drives default feature set in `server.xml` | `webProfile` |
+| `openliberty_server_create` | Run `server create` if the instance directory is absent | `true` |
+| `openliberty_server_description` | Free-text description written into `server.xml` | `"Open Liberty Server managed by Ansible"` |
 
 ### Paths and ownership
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_home` | `/opt/openliberty/wlp` | Liberty home directory (must match `install` role) |
-| `openliberty_user` | `liberty` | Owner of all generated files |
-| `openliberty_group` | `liberty` | Group of all generated files |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_home` | Liberty home directory (must match `install` role) | `/opt/openliberty/wlp` |
+| `openliberty_user` | Owner of all generated files | `liberty` |
+| `openliberty_group` | Group of all generated files | `liberty` |
 
 ### HTTP listener
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_http_port` | `9080` | HTTP listener port |
-| `openliberty_https_port` | `9443` | HTTPS listener port |
-| `openliberty_https_enabled` | `true` | Enable the HTTPS listener in `server.xml` |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_http_port` | HTTP listener port | `9080` |
+| `openliberty_https_port` | HTTPS listener port | `9443` |
+| `openliberty_https_enabled` | Enable the HTTPS listener in `server.xml` (requires SSL/keystore for production) | `false` |
 
 ### Features
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_extra_features` | `[]` | Additional feature names appended beyond edition defaults. Example: `["jdbc-4.3", "jndi-1.0"]` |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_extra_features` | Additional feature names appended beyond edition defaults. Example: `["jdbc-4.3", "jndi-1.0"]` | `[]` |
 
 ### Data sources
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_datasources` | `[]` | List of `<dataSource>` stanzas rendered into `server.xml`. Each item: `id`, `jdbcDriverRef`, `databaseName` (or `url`), `user`, `password` |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_datasources` | List of `<dataSource>` stanzas rendered into `server.xml`. Each item: `id`, `jdbcDriverRef`, `databaseName` (or `url`), `user`, `password` | `[]` |
 
 ### JVM options
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_jvm_options` | `[]` | JVM options written to `jvm.options`, e.g. `["-Xms512m", "-Xmx1024m"]` |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_jvm_options` | JVM options written to `jvm.options`, e.g. `["-Xms512m", "-Xmx1024m"]` | `[]` |
 
 ### Bootstrap properties
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_bootstrap_properties` | `{}` | Key-value pairs written to `bootstrap.properties`. Example: `{"com.ibm.ws.logging.trace.specification": "*=all=enabled"}` |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_bootstrap_properties` | Key-value pairs written to `bootstrap.properties`. Example: `{"com.ibm.ws.logging.trace.specification": "*=all=enabled"}` | `{}` |
 
 ### Logging
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_configure_logging` | `true` | Add a `<logging>` stanza to `server.xml` |
-| `openliberty_log_level` | `"INFO"` | Log level: `INFO`, `AUDIT`, `WARNING`, `ERROR` |
-| `openliberty_log_max_file_size` | `20` | Maximum log file size in MB (0 = unlimited) |
-| `openliberty_log_max_files` | `5` | Maximum number of log files to retain (0 = unlimited) |
-| `openliberty_log_dir` | `""` | Custom log directory (empty = Liberty default) |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_configure_logging` | Add a `<logging>` stanza to `server.xml` | `true` |
+| `openliberty_log_level` | Log level: `INFO`, `AUDIT`, `WARNING`, `ERROR` | `"INFO"` |
+| `openliberty_log_max_file_size` | Maximum log file size in MB (0 = unlimited) | `20` |
+| `openliberty_log_max_files` | Maximum number of log files to retain (0 = unlimited) | `5` |
+| `openliberty_log_dir` | Custom log directory (empty = Liberty default) | `""` |
 
 ## Dependencies
 
@@ -103,8 +103,8 @@ Create a Liberty server instance and render its configuration files
 
 ## Molecule Tests
 
-| Scenario | What is tested |
-|---|---|
+| Scenario | Description |
+|:---------|:------------|
 | [`default`](../../molecule/default/) | webProfile `server.xml` on RHEL 8, 9, and 10 |
 | [`microprofile`](../../molecule/microprofile/) | MicroProfile edition configuration |
 | [`app_deploy`](../../molecule/app_deploy/) | Configuration before deployment |

@@ -1,4 +1,6 @@
 ---
+# install – main task entry point
+# Download, extract, and verify an Open Liberty installation.
 # RHEL 8: avoid ansible.builtin.package/dnf with python39 (no dnf bindings).
 - name: Ensure unzip package is present (RHEL 8)
   ansible.builtin.command:

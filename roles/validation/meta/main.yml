@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Ansible-Middleware Team
+  author: Ansible Middleware Team
   description: Validate that Open Liberty is running and healthy
   license: GPL-2.0-only
   min_ansible_version: "2.16"
@@ -15,4 +15,5 @@ galaxy_info:
     - liberty
     - java
     - middleware
+    - ibm
 dependencies: []

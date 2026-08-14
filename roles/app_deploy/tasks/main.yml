@@ -1,6 +1,6 @@
 ---
 # app_deploy – main task entry point
-# Reference: https://openliberty.io/docs/latest/deploy-war-ear.html
+# Reference: https://openliberty.io/docs/latest/reference/config/application.html
 
 - name: Ensure application deployment directories exist
   ansible.builtin.file:

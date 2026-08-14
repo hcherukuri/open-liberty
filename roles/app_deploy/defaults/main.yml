@@ -1,6 +1,6 @@
 ---
 # Deploy WAR/EAR/JAR archives to a running Open Liberty server.
-# https://openliberty.io/docs/latest/deploy-war-ear.html
+# https://openliberty.io/docs/latest/reference/config/application.html
 
 openliberty_home: /opt/openliberty/wlp
 openliberty_server_name: defaultServer

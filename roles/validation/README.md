@@ -18,16 +18,16 @@ The role performs three checks in order:
 
 ## Role Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_server_name` | `defaultServer` | Liberty server name |
-| `openliberty_service_name` | `openliberty-{{ openliberty_server_name }}` | systemd unit to check |
-| `openliberty_home` | `/opt/openliberty/wlp` | Liberty home directory |
-| `openliberty_http_port` | `9080` | HTTP port to wait on |
-| `openliberty_validation_timeout` | `300` | Total seconds to wait for the server |
-| `openliberty_validation_delay` | `10` | Seconds between retry attempts |
-| `openliberty_validate_health_endpoint` | `true` | Perform an HTTP health check when `true` |
-| `openliberty_health_url_path` | `"/health"` | URL path for the health check (requires `mpHealth` feature) |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_server_name` | Liberty server name | `defaultServer` |
+| `openliberty_service_name` | systemd unit to check | `openliberty-{{ openliberty_server_name }}` |
+| `openliberty_home` | Liberty home directory | `/opt/openliberty/wlp` |
+| `openliberty_http_port` | HTTP port to wait on | `9080` |
+| `openliberty_validation_timeout` | Total seconds to wait for the server | `300` |
+| `openliberty_validation_delay` | Seconds between retry attempts | `10` |
+| `openliberty_validate_health_endpoint` | Perform an HTTP health check when `true` | `true` |
+| `openliberty_health_url_path` | URL path for the health check (requires `mpHealth` feature) | `"/health"` |
 
 ## Dependencies
 
@@ -83,8 +83,8 @@ The role performs three checks in order:
 
 ## Molecule Tests
 
-| Scenario | What is tested |
-|---|---|
+| Scenario | Description |
+|:---------|:------------|
 | [`validation`](../../molecule/validation/) | Service check, port wait, and `/health` endpoint (microProfile edition) |
 | [`default`](../../molecule/default/) | `openliberty_validate_health_endpoint: false` path |
 | [`microprofile`](../../molecule/microprofile/) | Full `/health` endpoint check |

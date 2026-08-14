@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Ansible-Middleware Team
+  author: Ansible Middleware Team
   description: Download, verify, and extract Open Liberty application server
   license: GPL-2.0-only
   min_ansible_version: "2.16"
@@ -16,4 +16,5 @@ galaxy_info:
     - java
     - jakarta
     - middleware
+    - ibm
 dependencies: []

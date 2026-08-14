@@ -1,4 +1,6 @@
 ---
+# server_config – main task entry point
+# Create the Liberty server instance and render server.xml / jvm.options / bootstrap.properties.
 - name: Create Liberty server instance
   ansible.builtin.command:
     cmd: "{{ openliberty_home }}/bin/server create {{ openliberty_server_name }}"

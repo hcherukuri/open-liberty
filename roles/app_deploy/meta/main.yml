@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Ansible-Middleware Team
+  author: Ansible Middleware Team
   description: >
     Deploy WAR, EAR, or JAR application archives to an Open Liberty server
     via dropins or explicit server.xml <application> entries.
@@ -17,6 +17,9 @@ galaxy_info:
     - liberty
     - java
     - jakarta
+    - microprofile
+    - runtimes
     - middleware
     - deploy
+    - ibm
 dependencies: []

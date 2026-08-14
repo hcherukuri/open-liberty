@@ -32,7 +32,7 @@
     immediate: true
   become: true
   when:
-    - openliberty_port_manage_firewall | bool
+    - openliberty_firewall_port_manage | bool
     - ansible_facts.os_family == 'RedHat'
   notify: Reload firewalld
 
@@ -45,7 +45,7 @@
     immediate: true
   become: true
   when:
-    - openliberty_port_manage_firewall | bool
+    - openliberty_firewall_port_manage | bool
     - openliberty_https_enabled | bool
     - ansible_facts.os_family == 'RedHat'
   notify: Reload firewalld
@@ -57,7 +57,7 @@
     proto: tcp
   become: true
   when:
-    - openliberty_port_manage_firewall | bool
+    - openliberty_firewall_port_manage | bool
     - ansible_facts.os_family == 'Debian'
   notify: Reload ufw
 
@@ -68,7 +68,7 @@
     proto: tcp
   become: true
   when:
-    - openliberty_port_manage_firewall | bool
+    - openliberty_firewall_port_manage | bool
     - openliberty_https_enabled | bool
     - ansible_facts.os_family == 'Debian'
   notify: Reload ufw

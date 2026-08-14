@@ -15,45 +15,45 @@ Creates a dedicated system user and group, and installs Java if requested.
 
 ### Version and edition
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_version` | `"24.0.0.9"` | Open Liberty version to install |
-| `openliberty_edition` | `"webProfile"` | Edition: `kernel`, `webProfile`, `jakartaee`, `microProfile` |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_version` | Open Liberty version to install | `"24.0.0.9"` |
+| `openliberty_edition` | Edition: `kernel`, `webProfile`, `jakartaee`, `microProfile` | `"webProfile"` |
 
 ### Download
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_download_base_url` | `"https://repo1.maven.org/maven2/io/openliberty"` | Base URL for Maven Central archives |
-| `openliberty_download_url` | `""` | Full override URL; when set, `download_base_url` is ignored |
-| `openliberty_download_checksum` | `""` | Optional `sha256:<hex>` checksum for the archive |
-| `openliberty_download_retries` | `3` | Number of download retry attempts |
-| `openliberty_download_timeout` | `600` | Seconds per download attempt |
-| `openliberty_install_workdir` | `/tmp` | Temporary directory for the downloaded archive |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_download_base_url` | Base URL for Maven Central archives | `"https://repo1.maven.org/maven2/io/openliberty"` |
+| `openliberty_download_url` | Full override URL; when set, `download_base_url` is ignored | `""` |
+| `openliberty_download_checksum` | Optional `sha256:<hex>` checksum for the archive | `""` |
+| `openliberty_download_retries` | Number of download retry attempts | `3` |
+| `openliberty_download_timeout` | Seconds per download attempt | `600` |
+| `openliberty_install_workdir` | Temporary directory for the downloaded archive | `/tmp` |
 
 ### Installation path
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_install_dir` | `/opt/openliberty` | Base installation directory |
-| `openliberty_home` | `{{ openliberty_install_dir }}/wlp` | Liberty home (`wlp/`) — computed, override only if non-standard |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_install_dir` | Base installation directory | `/opt/openliberty` |
+| `openliberty_home` | Liberty home (`wlp/`) — computed, override only if non-standard | `{{ openliberty_install_dir }}/wlp` |
 
 ### System user
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_user` | `liberty` | System user that owns the installation |
-| `openliberty_group` | `liberty` | System group |
-| `openliberty_manage_user` | `true` | Set to `false` if the user is managed externally |
-| `openliberty_user_shell` | `/sbin/nologin` | Login shell for the service account |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_user` | System user that owns the installation | `liberty` |
+| `openliberty_group` | System group | `liberty` |
+| `openliberty_manage_user` | Set to `false` if the user is managed externally | `true` |
+| `openliberty_user_shell` | Login shell for the service account | `/sbin/nologin` |
 
 ### Java
 
-| Variable | Default | Description |
-|---|---|---|
-| `openliberty_install_java` | `false` | When `true`, installs OpenJDK (`openliberty_java_version`) |
-| `openliberty_java_version` | `"17"` | OpenJDK major version to install (use `"21"` on RHEL 10) |
-| `openliberty_java_home` | `/usr/lib/jvm/java-17-openjdk` | JAVA_HOME; discovered automatically when install_java is true |
+| Variable | Description | Default |
+|:---------|:------------|:--------|
+| `openliberty_install_java` | When `true`, installs OpenJDK (`openliberty_java_version`) | `false` |
+| `openliberty_java_version` | OpenJDK major version to install (use `"21"` on RHEL 10) | `"17"` |
+| `openliberty_java_home` | JAVA_HOME; discovered automatically when install_java is true | `/usr/lib/jvm/java-17-openjdk` |
 
 ## Dependencies
 
@@ -84,8 +84,8 @@ vars:
 
 This role is covered by the following Molecule scenarios:
 
-| Scenario | What is tested |
-|---|---|
+| Scenario | Description |
+|:---------|:------------|
 | [`default`](../../molecule/default/) | webProfile install on RHEL 8, 9, and 10 |
 | [`microprofile`](../../molecule/microprofile/) | MicroProfile edition install |
 | [`app_deploy`](../../molecule/app_deploy/) | Install as prerequisite for deployment tests |

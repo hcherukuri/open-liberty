@@ -14,6 +14,3 @@ openliberty_java_home: /usr/lib/jvm/java-17-openjdk
 
 # Extra env vars: [{"key": "WLP_OUTPUT_DIR", "value": "/var/log/openliberty"}]
 openliberty_service_env_vars: []
-
-# Extra JVM options via JVM_ARGS.
-openliberty_jvm_options: []

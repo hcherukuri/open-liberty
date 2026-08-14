@@ -1,5 +1,7 @@
 ---
-# In-place upgrade. Pass target with -e openliberty_new_version=X.Y.Z.W
+# In-place upgrade to a newer Open Liberty version.
+#   ansible-playbook -i inventory.ini playbooks/version_update.yml \
+#     -e openliberty_new_version=24.0.0.12
 - name: Update Open Liberty to a new version
   hosts: liberty_servers
   gather_facts: true

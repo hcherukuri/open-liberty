@@ -1,5 +1,7 @@
 ---
 # Install MicroProfile edition with /health validation.
+#   ansible-playbook -i inventory.ini playbooks/install_microprofile.yml \
+#     -e openliberty_edition=microProfile -e openliberty_version=24.0.0.9
 - name: Install Open Liberty – MicroProfile
   hosts: liberty_servers
   gather_facts: true

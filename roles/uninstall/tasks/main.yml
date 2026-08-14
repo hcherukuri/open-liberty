@@ -1,4 +1,6 @@
 ---
+# uninstall – main task entry point
+# Stop the service and remove installation files, unit, and optional user/group.
 - name: Stop and disable Open Liberty service
   ansible.builtin.systemd:
     name: "{{ openliberty_service_name }}"

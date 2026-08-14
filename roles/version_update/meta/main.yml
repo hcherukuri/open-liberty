@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Ansible-Middleware Team
+  author: Ansible Middleware Team
   description: >
     In-place upgrade of an existing Open Liberty installation to a new version
     with optional backup and zero-downtime sequencing.
@@ -19,4 +19,5 @@ galaxy_info:
     - jakarta
     - middleware
     - upgrade
+    - ibm
 dependencies: []

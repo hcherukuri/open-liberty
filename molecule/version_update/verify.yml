@@ -82,3 +82,26 @@
         that: _wlp_stat.stat.pw_name == 'liberty'
         fail_msg: "wlp directory ownership changed after upgrade (owner: {{ _wlp_stat.stat.pw_name }})"
         success_msg: "wlp directory ownership preserved (liberty)"
+
+    - name: Attempt downgrade to a lower version (expected to fail)
+      block:
+        - name: Run version_update with older target
+          ansible.builtin.include_role:
+            name: middleware_automation.open_liberty.version_update
+          vars:
+            openliberty_new_version: "{{ openliberty_version }}"
+            openliberty_update_backup: true
+
+        - name: Mark unexpected downgrade success
+          ansible.builtin.set_fact:
+            _downgrade_failed: false
+      rescue:
+        - name: Record expected downgrade failure
+          ansible.builtin.set_fact:
+            _downgrade_failed: true
+
+    - name: Assert downgrade was refused
+      ansible.builtin.assert:
+        that: _downgrade_failed | default(false)
+        fail_msg: "Downgrade from {{ openliberty_new_version }} to {{ openliberty_version }} should have failed"
+        success_msg: "Downgrade correctly refused"

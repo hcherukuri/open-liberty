@@ -20,22 +20,21 @@ tags:
   - jakarta
   - microprofile
   - middleware
+  - install
   - deploy
   - upgrade
   - networking
-repository: https://github.com/hcherukuri/open-liberty
-documentation: https://github.com/hcherukuri/open-liberty
+  - ibm
+repository: https://github.com/ansible-middleware/open-liberty
+documentation: https://github.com/ansible-middleware/open-liberty
 homepage: https://openliberty.io
-issues: https://github.com/hcherukuri/open-liberty/issues
+issues: https://github.com/ansible-middleware/open-liberty/issues
 dependencies:
   community.general: ">=6.0.0"
   ansible.posix: ">=1.4.0"
 build_ignore:
   - molecule
   - .github
-  - .ansible-lint
-  - .yamllint.yml
-  - ansible.cfg
   - .DS_Store
   - '*.tar.gz'
   - '*.zip'

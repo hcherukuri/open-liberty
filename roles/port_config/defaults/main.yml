@@ -10,15 +10,17 @@ openliberty_group: liberty
 openliberty_http_port: 9080
 openliberty_https_port: 9443
 
-# false → httpsPort=-1 (HTTPS disabled on this endpoint).
-openliberty_https_enabled: true
+# Disabled by default: this role does not configure SSL keystores/certificates.
+# Open Liberty can auto-generate a default keystore when HTTPS is enabled, but
+# production deployments should configure SSL explicitly before setting this true.
+openliberty_https_enabled: false
 openliberty_endpoint_host: "*"
 openliberty_endpoint_id: defaultHttpEndpoint
 
 openliberty_http_max_keep_alive_requests: 100
 openliberty_http_persist_timeout: 30
 
-openliberty_port_manage_firewall: false
+openliberty_firewall_port_manage: false
 openliberty_firewall_zone: public
 
 openliberty_service_name: "openliberty-{{ openliberty_server_name }}"

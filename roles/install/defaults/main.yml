@@ -51,7 +51,7 @@ openliberty_install_java: false
 # UBI 10 ships Java 21 in base repos (Java 17 is not available there).
 openliberty_java_version: "17"
 
-# RedHat-family package name derived from openliberty_java_version.
+# Red Hat-family package name derived from openliberty_java_version.
 openliberty_java_package_name: >-
   {{ 'java-1.8.0-openjdk-headless' if openliberty_java_version | string == '1.8'
      else 'java-' ~ (openliberty_java_version | string) ~ '-openjdk-headless' }}

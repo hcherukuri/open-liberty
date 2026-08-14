@@ -31,12 +31,9 @@ StandardOutput=journal
 StandardError=journal
 SyslogIdentifier={{ openliberty_service_name }}
 
-# Java environment
+# Java environment — JVM options belong in jvm.options (server_config role).
 Environment="JAVA_HOME={{ openliberty_java_home }}"
 Environment="PATH={{ openliberty_java_home }}/bin:/usr/bin:/bin"
-{% if openliberty_jvm_options | length > 0 %}
-Environment="JVM_ARGS={{ openliberty_jvm_options | join(' ') }}"
-{% endif %}
 {% for env_var in openliberty_service_env_vars %}
 Environment="{{ env_var.key }}={{ env_var.value }}"
 {% endfor %}

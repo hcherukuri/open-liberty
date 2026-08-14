@@ -1,8 +1,8 @@
 ---
-# Install Java on RedHat-family hosts.
+# Install Java on Red Hat-family hosts.
 # RHEL 8: use the dnf CLI — ansible.builtin.dnf needs platform-python bindings
 # that are incompatible with the python39 interpreter required by ansible-core 2.18+.
-- name: Install Java (RedHat family, RHEL 8)
+- name: Install Java (Red Hat family, RHEL 8)
   ansible.builtin.command:
     cmd: "dnf install -y {{ openliberty_java_package_name }}"
   become: true
@@ -14,14 +14,14 @@
     - ansible_os_family == "RedHat"
     - ansible_distribution_major_version | int == 8
 
-- name: Install Java (RedHat family, RHEL 9+)
+- name: Install Java (Red Hat family, RHEL 9+)
   ansible.builtin.dnf:
     name: "{{ openliberty_java_package_name }}"
     state: present
   become: true
   when:
     - ansible_os_family == "RedHat"
-    - ansible_distribution_major_version | int != 8
+    - ansible_distribution_major_version | int >= 9
 
 # Install Java on Debian-family hosts.
 - name: Install Java (Debian family)
