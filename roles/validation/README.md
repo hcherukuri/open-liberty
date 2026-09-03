@@ -20,9 +20,9 @@ The role performs three checks in order:
 
 | Variable | Description | Default |
 |:---------|:------------|:--------|
-| `openliberty_server_name` | Liberty server name | `defaultServer` |
+| `openliberty_server_name` | Open Liberty server name | `defaultServer` |
 | `openliberty_service_name` | systemd unit to check | `openliberty-{{ openliberty_server_name }}` |
-| `openliberty_home` | Liberty home directory | `/opt/openliberty/wlp` |
+| `openliberty_home` | Open Liberty home directory | `/opt/openliberty/wlp` |
 | `openliberty_http_port` | HTTP port to wait on | `9080` |
 | `openliberty_validation_timeout` | Total seconds to wait for the server | `300` |
 | `openliberty_validation_delay` | Seconds between retry attempts | `10` |
@@ -56,7 +56,7 @@ The role performs three checks in order:
 ### MicroProfile with /health endpoint check
 
 ```yaml
-- name: Install MicroProfile Liberty and check /health
+- name: Install MicroProfile Open Liberty and check /health
   hosts: liberty_servers
   vars:
     openliberty_edition: microProfile
@@ -73,7 +73,7 @@ The role performs three checks in order:
 ### Validate an already-running server
 
 ```yaml
-- name: Validate Liberty is healthy
+- name: Validate Open Liberty is healthy
   hosts: liberty_servers
   vars:
     openliberty_validate_health_endpoint: false

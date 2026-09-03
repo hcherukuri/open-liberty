@@ -4,30 +4,11 @@
   gather_facts: true
 
   tasks:
-    - name: Check wlp directory exists
-      ansible.builtin.stat:
-        path: /opt/openliberty/wlp
-      register: _wlp_dir
-      failed_when: not _wlp_dir.stat.exists
-
-    - name: Check systemd unit file exists
-      ansible.builtin.stat:
-        path: /etc/systemd/system/openliberty-microServer.service
-      register: _unit_file
-      failed_when: not _unit_file.stat.exists
-
-    - name: Check service is active
-      ansible.builtin.systemd:
-        name: openliberty-microServer
-      register: _svc
-      become: true
-      failed_when: _svc.status.ActiveState != 'active'
-
-    - name: Wait for HTTP port 9080
-      ansible.builtin.wait_for:
-        host: "127.0.0.1"
-        port: 9080
-        timeout: 120
+    - name: Run shared Open Liberty install checks
+      ansible.builtin.include_tasks: ../verify_common_tasks.yml
+      vars:
+        openliberty_verify_service_name: openliberty-microServer
+        openliberty_verify_http_port: 9080
 
     - name: Query /health endpoint
       ansible.builtin.uri:

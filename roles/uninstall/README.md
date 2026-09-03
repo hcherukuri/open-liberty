@@ -1,11 +1,11 @@
 # middleware_automation.open_liberty.uninstall
 
-Completely remove an Open Liberty installation from the target host.
+Remove an Open Liberty installation from the target host.
 
 The role:
-1. Stops and disables the Liberty systemd service.
+1. Stops and disables the Open Liberty systemd service.
 2. Removes the systemd unit file and reloads the daemon.
-3. Deletes the Liberty installation directory (including `wlp/` and all server data).
+3. Deletes the Open Liberty installation directory (including `wlp/` and all server data).
 4. Optionally removes the `liberty` system user and group.
 
 ## Requirements
@@ -19,7 +19,7 @@ The role:
 | Variable | Description | Default |
 |:---------|:------------|:--------|
 | `openliberty_service_name` | systemd unit to stop and remove | `openliberty-{{ openliberty_server_name }}` |
-| `openliberty_server_name` | Liberty server name (used to derive the unit name) | `defaultServer` |
+| `openliberty_server_name` | Open Liberty server name (used to derive the unit name) | `defaultServer` |
 | `openliberty_install_dir` | Installation directory to delete | `/opt/openliberty` |
 | `openliberty_user` | System user to remove | `liberty` |
 | `openliberty_group` | System group to remove | `liberty` |
@@ -61,7 +61,7 @@ where the install role may have partially completed.
 ### Custom server name
 
 ```yaml
-- name: Remove custom Liberty instance
+- name: Remove custom Open Liberty instance
   hosts: liberty_servers
   vars:
     openliberty_server_name: appServer

@@ -36,7 +36,7 @@ Creates a dedicated system user and group, and installs Java if requested.
 | Variable | Description | Default |
 |:---------|:------------|:--------|
 | `openliberty_install_dir` | Base installation directory | `/opt/openliberty` |
-| `openliberty_home` | Liberty home (`wlp/`) — computed, override only if non-standard | `{{ openliberty_install_dir }}/wlp` |
+| `openliberty_home` | Open Liberty home (`wlp/`) — computed, override only if non-standard | `{{ openliberty_install_dir }}/wlp` |
 
 ### System user
 

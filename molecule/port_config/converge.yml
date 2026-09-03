@@ -1,6 +1,6 @@
 ---
 # converge.yml – port_config scenario
-# Phase 1: install Liberty on ports 9080/9443 (defaults).
+# Phase 1: install Open Liberty on ports 9080/9443 (defaults).
 # Phase 2: reconfigure to ports 8080/8443 via port_config role.
 - name: Converge – Port Configuration
   hosts: all
@@ -18,11 +18,11 @@
         openliberty_http_port: 9080
         openliberty_https_port: 9443
 
-    - name: Enable and start Liberty service
+    - name: Enable and start Open Liberty service
       ansible.builtin.include_role:
         name: middleware_automation.open_liberty.systemd
 
-    - name: Wait for Liberty to come up on port 9080
+    - name: Wait for Open Liberty to come up on port 9080
       ansible.builtin.wait_for:
         host: "127.0.0.1"
         port: 9080
@@ -39,7 +39,7 @@
         openliberty_endpoint_host: "*"
         openliberty_firewall_port_manage: false
 
-    - name: Wait for Liberty to come up on new port 8080
+    - name: Wait for Open Liberty to come up on new port 8080
       ansible.builtin.wait_for:
         host: "127.0.0.1"
         port: 8080

@@ -15,10 +15,10 @@ WorkingDirectory={{ openliberty_home }}
 ExecStartPre=/usr/bin/test -x {{ openliberty_home }}/bin/server
 ExecStartPre=/usr/bin/test -d {{ openliberty_java_home }}
 
-# Run the Liberty server in the foreground (reliable under systemd/containers).
+# Run the Open Liberty server in the foreground (reliable under systemd/containers).
 ExecStart={{ openliberty_home }}/bin/server run {{ openliberty_server_name }}
 
-# Stop the Liberty server gracefully.
+# Stop the Open Liberty server gracefully.
 ExecStop={{ openliberty_home }}/bin/server stop {{ openliberty_server_name }}
 
 TimeoutStartSec={{ openliberty_service_start_timeout }}

@@ -6,12 +6,12 @@ The role:
 1. Reads the currently installed version from `openliberty.properties`.
 2. Fails if `openliberty_new_version` would downgrade the installation.
 3. Skips the upgrade if the installed version is already greater than or equal to `openliberty_new_version`.
-4. Stops the Liberty service.
+4. Stops the Open Liberty service.
 5. Optionally backs up the existing `wlp/` directory.
-6. Downloads the new Liberty archive from Maven Central (or a custom URL).
+6. Downloads the new Open Liberty archive from Maven Central (or a custom URL).
 7. Removes the old `wlp/` tree and extracts the new archive.
 8. Rolls back from the backup if the upgrade fails.
-9. Restarts the Liberty service.
+9. Restarts the Open Liberty service.
 
 Server configuration files (`server.xml`, `jvm.options`, `bootstrap.properties`) under
 `wlp/usr/servers/` should be re-applied with the `server_config` role after upgrade when
@@ -39,7 +39,7 @@ needed. Enable `openliberty_update_backup` so a failed upgrade can roll back.
 | Variable | Description | Default |
 |:---------|:------------|:--------|
 | `openliberty_install_dir` | Base installation directory | `/opt/openliberty` |
-| `openliberty_home` | Liberty home directory | `/opt/openliberty/wlp` |
+| `openliberty_home` | Open Liberty home directory | `/opt/openliberty/wlp` |
 | `openliberty_install_workdir` | Temporary directory for downloading the archive | `/tmp` |
 | `openliberty_user` | File owner | `liberty` |
 | `openliberty_group` | File group | `liberty` |
@@ -65,7 +65,7 @@ needed. Enable `openliberty_update_backup` so a failed upgrade can roll back.
 | Variable | Description | Default |
 |:---------|:------------|:--------|
 | `openliberty_service_name` | systemd unit to stop/start during upgrade | `openliberty-{{ openliberty_server_name }}` |
-| `openliberty_server_name` | Liberty server name | `defaultServer` |
+| `openliberty_server_name` | Open Liberty server name | `defaultServer` |
 
 ## Dependencies
 

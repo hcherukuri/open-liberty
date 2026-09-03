@@ -17,6 +17,7 @@
                  type="{{ _app_type }}"
                  location="${server.config.dir}/apps/{{ app.src | basename }}"
 {% if app.context_root is defined %}
+                 {# XML attribute is context-root; Ansible var is context_root #}
                  context-root="{{ app.context_root }}"
 {% endif %}
     />

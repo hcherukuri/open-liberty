@@ -37,12 +37,12 @@
         fail_msg: "httpsPort=8443 not found in port_config.xml"
         success_msg: "httpsPort=8443 correctly rendered"
 
-    - name: Confirm Liberty is listening on port 8080
+    - name: Confirm Open Liberty is listening on port 8080
       ansible.builtin.wait_for:
         host: "127.0.0.1"
         port: 8080
         timeout: 60
-        msg: "Liberty is not listening on port 8080 after port_config reconfiguration"
+        msg: "Open Liberty is not listening on port 8080 after port_config reconfiguration"
 
     - name: Confirm port 9080 is no longer open
       ansible.builtin.wait_for:
@@ -50,7 +50,7 @@
         port: 9080
         state: stopped
         timeout: 30
-        msg: "Port 9080 is still open – Liberty may not have reloaded the new port configuration"
+        msg: "Port 9080 is still open – Open Liberty may not have reloaded the new port configuration"
 
     - name: Check port_config.xml ownership
       ansible.builtin.stat:

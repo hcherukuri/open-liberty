@@ -19,7 +19,7 @@ opens the new ports in firewalld/ufw.
 
 | Variable | Description | Default |
 |:---------|:------------|:--------|
-| `openliberty_home` | Liberty home directory | `/opt/openliberty/wlp` |
+| `openliberty_home` | Open Liberty home directory | `/opt/openliberty/wlp` |
 | `openliberty_server_name` | Server instance to reconfigure | `defaultServer` |
 | `openliberty_user` | Owner of the generated XML override file | `liberty` |
 | `openliberty_group` | Group of the generated XML override file | `liberty` |
@@ -60,7 +60,7 @@ opens the new ports in firewalld/ufw.
 ### Reconfigure ports (no firewall)
 
 ```yaml
-- name: Reconfigure Liberty to listen on 8080/8443
+- name: Reconfigure Open Liberty to listen on 8080/8443
   hosts: liberty_servers
   vars:
     openliberty_http_port: 8080
@@ -74,7 +74,7 @@ opens the new ports in firewalld/ufw.
 ### Reconfigure ports and update firewalld
 
 ```yaml
-- name: Move Liberty to port 8080, open firewall
+- name: Move Open Liberty to port 8080, open firewall
   hosts: liberty_servers
   vars:
     openliberty_http_port: 8080

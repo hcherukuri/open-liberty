@@ -1,32 +1,22 @@
 ---
 # verify.yml – uninstall scenario
-# Asserts that the uninstall role fully removed all Liberty artefacts.
-- name: Verify Uninstall
+# Asserts that the uninstall role removed all Open Liberty artefacts.
+- name: Verify uninstall
   hosts: all
   gather_facts: false
 
   tasks:
-    - name: Check installation directory is absent
+    - name: Assert installation directory was removed
       ansible.builtin.stat:
         path: /opt/openliberty
       register: _install_dir
+      failed_when: _install_dir.stat.exists | default(false)
 
-    - name: Assert installation directory was removed
-      ansible.builtin.assert:
-        that: not _install_dir.stat.exists
-        fail_msg: "/opt/openliberty still exists – uninstall role did not remove it"
-        success_msg: "/opt/openliberty was removed"
-
-    - name: Check systemd unit file is absent
+    - name: Assert unit file was removed
       ansible.builtin.stat:
         path: /etc/systemd/system/openliberty-defaultServer.service
       register: _unit_file
-
-    - name: Assert unit file was removed
-      ansible.builtin.assert:
-        that: not _unit_file.stat.exists
-        fail_msg: "openliberty-defaultServer.service still present – uninstall did not remove the unit file"
-        success_msg: "Systemd unit file was removed"
+      failed_when: _unit_file.stat.exists | default(false)
 
     - name: Check service is not active
       ansible.builtin.systemd:
@@ -73,4 +63,4 @@
         port: 9080
         state: stopped
         timeout: 30
-        msg: "Port 9080 is still open after uninstall – Liberty may still be running"
+        msg: "Port 9080 is still open after uninstall – Open Liberty may still be running"

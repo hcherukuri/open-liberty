@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Ansible Middleware Team
-  description: Completely remove an Open Liberty installation, service, and user
+  description: Remove an Open Liberty installation, service, and user
   license: GPL-2.0-only
   min_ansible_version: "2.16"
   platforms:

@@ -3,6 +3,7 @@
 # Runs the app_deploy role twice:
 #   Pass 1 – explicit server.xml (configDropins) mode
 #   Pass 2 – dropins mode
+# sample.war is built by prepare.yml and left at /tmp/sample.war
 - name: Converge – Application Deployment
   hosts: all
   gather_facts: true

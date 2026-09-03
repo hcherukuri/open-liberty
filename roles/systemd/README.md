@@ -22,8 +22,8 @@ via `jvm.options` (`openliberty_jvm_options`). This role does not set `JVM_ARGS`
 | `openliberty_service_state` | Desired service state: `started`, `stopped`, `restarted` | `started` |
 | `openliberty_service_enabled` | Enable the service to start on boot | `true` |
 | `openliberty_service_start_timeout` | Seconds systemd allows for the service to start | `300` |
-| `openliberty_server_name` | Liberty server name (used to derive the unit name) | `defaultServer` |
-| `openliberty_home` | Liberty home directory | `/opt/openliberty/wlp` |
+| `openliberty_server_name` | Open Liberty server name (used to derive the unit name) | `defaultServer` |
+| `openliberty_home` | Open Liberty home directory | `/opt/openliberty/wlp` |
 | `openliberty_user` | User the service runs as | `liberty` |
 | `openliberty_group` | Group the service runs as | `liberty` |
 | `openliberty_java_home` | `JAVA_HOME` exported in the service environment | `/usr/lib/jvm/java-17-openjdk` |
@@ -50,7 +50,7 @@ via `jvm.options` (`openliberty_jvm_options`). This role does not set `JVM_ARGS`
 ### Custom service with extra environment variables
 
 ```yaml
-- name: Start Liberty with custom environment
+- name: Start Open Liberty with custom environment
   hosts: liberty_servers
   vars:
     openliberty_server_name: appServer

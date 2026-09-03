@@ -1,6 +1,6 @@
 # middleware_automation.open_liberty.server_config
 
-Create a Liberty server instance and render its configuration files
+Create an Open Liberty server instance and render its configuration files
 (`server.xml`, `jvm.options`, `bootstrap.properties`) from Jinja2 templates.
 
 ## Requirements
@@ -16,7 +16,7 @@ Create a Liberty server instance and render its configuration files
 
 | Variable | Description | Default |
 |:---------|:------------|:--------|
-| `openliberty_server_name` | Liberty server instance name | `defaultServer` |
+| `openliberty_server_name` | Open Liberty server instance name | `defaultServer` |
 | `openliberty_edition` | Edition — drives default feature set in `server.xml` | `webProfile` |
 | `openliberty_server_create` | Run `server create` if the instance directory is absent | `true` |
 | `openliberty_server_description` | Free-text description written into `server.xml` | `"Open Liberty Server managed by Ansible"` |
@@ -25,7 +25,7 @@ Create a Liberty server instance and render its configuration files
 
 | Variable | Description | Default |
 |:---------|:------------|:--------|
-| `openliberty_home` | Liberty home directory (must match `install` role) | `/opt/openliberty/wlp` |
+| `openliberty_home` | Open Liberty home directory (must match `install` role) | `/opt/openliberty/wlp` |
 | `openliberty_user` | Owner of all generated files | `liberty` |
 | `openliberty_group` | Group of all generated files | `liberty` |
 
@@ -65,11 +65,11 @@ Create a Liberty server instance and render its configuration files
 
 | Variable | Description | Default |
 |:---------|:------------|:--------|
-| `openliberty_configure_logging` | Add a `<logging>` stanza to `server.xml` | `true` |
+| `openliberty_configure_logging` | Add a `<logging>` element to `server.xml` | `true` |
 | `openliberty_log_level` | Log level: `INFO`, `AUDIT`, `WARNING`, `ERROR` | `"INFO"` |
 | `openliberty_log_max_file_size` | Maximum log file size in MB (0 = unlimited) | `20` |
 | `openliberty_log_max_files` | Maximum number of log files to retain (0 = unlimited) | `5` |
-| `openliberty_log_dir` | Custom log directory (empty = Liberty default) | `""` |
+| `openliberty_log_dir` | Custom log directory (empty = Open Liberty default) | `""` |
 
 ## Dependencies
 

@@ -1,0 +1,53 @@
+---
+# Shared Open Liberty install checks for molecule verify playbooks.
+# Expected vars:
+#   openliberty_verify_service_name – systemd unit name (without .service)
+# Optional vars:
+#   openliberty_verify_http_port – wait for this local HTTP port when set
+#   openliberty_verify_check_server_xml – also assert server.xml exists (default: false)
+#   openliberty_verify_check_user – also assert liberty user exists (default: false)
+
+- name: Check wlp directory exists
+  ansible.builtin.stat:
+    path: /opt/openliberty/wlp
+  register: _wlp_dir
+  failed_when: not _wlp_dir.stat.exists
+
+- name: Check server binary exists
+  ansible.builtin.stat:
+    path: /opt/openliberty/wlp/bin/server
+  register: _server_bin
+  failed_when: not _server_bin.stat.exists
+
+- name: Check systemd unit file exists
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ openliberty_verify_service_name }}.service"
+  register: _unit_file
+  failed_when: not _unit_file.stat.exists
+
+- name: Check server.xml exists
+  ansible.builtin.stat:
+    path: /opt/openliberty/wlp/usr/servers/{{ openliberty_server_name | default('defaultServer') }}/server.xml
+  register: _server_xml
+  failed_when: not _server_xml.stat.exists
+  when: openliberty_verify_check_server_xml | default(false) | bool
+
+- name: Check service is active
+  ansible.builtin.systemd:
+    name: "{{ openliberty_verify_service_name }}"
+  register: _svc
+  become: true
+  failed_when: _svc.status.ActiveState != 'active'
+
+- name: Check liberty user exists
+  ansible.builtin.getent:
+    database: passwd
+    key: liberty
+  when: openliberty_verify_check_user | default(false) | bool
+
+- name: Wait for HTTP port
+  ansible.builtin.wait_for:
+    host: "127.0.0.1"
+    port: "{{ openliberty_verify_http_port }}"
+    timeout: 60
+  when: openliberty_verify_http_port is defined

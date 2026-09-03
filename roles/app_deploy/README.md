@@ -3,7 +3,7 @@
 Deploy WAR, EAR, or JAR application archives to a running Open Liberty server.
 Supports two deployment modes:
 
-- **dropins** — copy the archive to the `dropins/` directory; Liberty auto-discovers it.
+- **dropins** — copy the archive to the `dropins/` directory; Open Liberty auto-discovers it.
 - **explicit** — write an `<application>` element into `configDropins/overrides/app_deploy.xml`; gives full control over context root and type.
 
 ## Requirements
@@ -38,14 +38,14 @@ Each application item supports:
 | Variable | Description | Default |
 |:---------|:------------|:--------|
 | `openliberty_deploy_to_dropins` | `true` = dropins directory; `false` = explicit `<application>` in config | `false` |
-| `openliberty_dropins_dir` | dropins sub-directory name (Liberty standard) | `dropins` |
+| `openliberty_dropins_dir` | dropins sub-directory name (Open Liberty standard) | `dropins` |
 
 ### Server connection
 
 | Variable | Description | Default |
 |:---------|:------------|:--------|
-| `openliberty_home` | Liberty home directory | `/opt/openliberty/wlp` |
-| `openliberty_server_name` | Target Liberty server instance | `defaultServer` |
+| `openliberty_home` | Open Liberty home directory | `/opt/openliberty/wlp` |
+| `openliberty_server_name` | Target Open Liberty server instance | `defaultServer` |
 | `openliberty_user` | File owner for deployed archives | `liberty` |
 | `openliberty_group` | File group for deployed archives | `liberty` |
 | `openliberty_http_port` | HTTP port used for readiness probes | `9080` |
@@ -109,7 +109,7 @@ Each application item supports:
 ### Remove an application
 
 ```yaml
-- name: Remove application from Liberty
+- name: Remove application from Open Liberty
   hosts: liberty_servers
   vars:
     openliberty_applications:

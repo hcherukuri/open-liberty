@@ -1,6 +1,6 @@
 ---
 # converge.yml – uninstall scenario
-# Phase 1: full Liberty install (install + server_config + systemd).
+# Phase 1: full Open Liberty install (install + server_config + systemd).
 # Phase 2: run the uninstall role to tear everything down.
 - name: Converge – Uninstall
   hosts: all
@@ -15,11 +15,11 @@
       ansible.builtin.include_role:
         name: middleware_automation.open_liberty.server_config
 
-    - name: Enable and start Liberty service
+    - name: Enable and start Open Liberty service
       ansible.builtin.include_role:
         name: middleware_automation.open_liberty.systemd
 
-    - name: Wait for Liberty to start
+    - name: Wait for Open Liberty to start
       ansible.builtin.wait_for:
         host: "127.0.0.1"
         port: "{{ openliberty_http_port }}"

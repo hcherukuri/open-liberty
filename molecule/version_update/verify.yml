@@ -70,7 +70,7 @@
         host: "127.0.0.1"
         port: "{{ openliberty_http_port }}"
         timeout: 60
-        msg: "Liberty HTTP port not responding after version upgrade"
+        msg: "Open Liberty HTTP port not responding after version update"
 
     - name: Check wlp directory ownership after upgrade
       ansible.builtin.stat:

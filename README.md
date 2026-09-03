@@ -116,7 +116,7 @@ All variables are documented in each role's `defaults/main.yml` and the role REA
 | `openliberty_version` | Open Liberty version to install | `"24.0.0.9"` |
 | `openliberty_edition` | Edition: `kernel`, `webProfile`, `jakartaee`, `microProfile` | `"webProfile"` |
 | `openliberty_install_dir` | Base installation directory | `/opt/openliberty` |
-| `openliberty_server_name` | Liberty server name | `defaultServer` |
+| `openliberty_server_name` | Open Liberty server name | `defaultServer` |
 | `openliberty_user` | System user to run the service | `liberty` |
 | `openliberty_group` | System group | `liberty` |
 | `openliberty_install_java` | Install OpenJDK when missing (`openliberty_java_version`) | `false` |

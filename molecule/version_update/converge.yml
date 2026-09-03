@@ -1,7 +1,7 @@
 ---
 # converge.yml – version_update scenario
-# Phase 1: install Liberty at openliberty_version (24.0.0.9).
-# Phase 2: upgrade to openliberty_new_version (24.0.0.12) via version_update role.
+# Phase 1: install Open Liberty at openliberty_version (24.0.0.9).
+# Phase 2: update to openliberty_new_version (24.0.0.12) via version_update role.
 - name: Converge – Version Update
   hosts: all
   gather_facts: true
@@ -17,25 +17,25 @@
       ansible.builtin.include_role:
         name: middleware_automation.open_liberty.server_config
 
-    - name: Enable and start Liberty service
+    - name: Enable and start Open Liberty service
       ansible.builtin.include_role:
         name: middleware_automation.open_liberty.systemd
 
-    - name: Wait for initial Liberty startup
+    - name: Wait for initial Open Liberty startup
       ansible.builtin.wait_for:
         host: "127.0.0.1"
         port: "{{ openliberty_http_port }}"
         timeout: 120
         delay: 5
 
-    - name: Upgrade Liberty to new version
+    - name: Update Open Liberty to new version
       ansible.builtin.include_role:
         name: middleware_automation.open_liberty.version_update
       vars:
         openliberty_new_version: "{{ openliberty_new_version }}"
         openliberty_update_backup: true
 
-    - name: Wait for Liberty to come back up after upgrade
+    - name: Wait for Open Liberty to come back up after update
       ansible.builtin.wait_for:
         host: "127.0.0.1"
         port: "{{ openliberty_http_port }}"
