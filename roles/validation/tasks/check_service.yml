@@ -1,0 +1,14 @@
+---
+- name: Gather systemd service status
+  ansible.builtin.systemd:
+    name: "{{ openliberty_service_name }}"
+  register: _openliberty_service_status
+  become: true
+
+- name: Assert service is active
+  ansible.builtin.assert:
+    that: _openliberty_service_status.status.ActiveState == 'active'
+    fail_msg: >
+      Open Liberty service '{{ openliberty_service_name }}' is not active
+      (current state: {{ _openliberty_service_status.status.ActiveState }}).
+    success_msg: "Service '{{ openliberty_service_name }}' is active."

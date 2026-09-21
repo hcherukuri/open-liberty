@@ -1,0 +1,52 @@
+---
+driver:
+  name: docker
+
+platforms:
+  - name: instance-rhel10
+    image: registry.access.redhat.com/ubi10/ubi-init:latest
+    command: "/usr/sbin/init"
+    pre_build_image: true
+    privileged: true
+    exposed_ports:
+      - "9080/tcp"
+    published_ports:
+      - 0.0.0.0:${PORT_BINDING:-9080}:9080/TCP
+
+  - name: instance-rhel9
+    image: registry.access.redhat.com/ubi9/ubi-init:latest
+    command: "/usr/sbin/init"
+    pre_build_image: true
+    privileged: true
+    exposed_ports:
+      - "9080/tcp"
+
+  - name: instance-rhel8
+    image: registry.access.redhat.com/ubi8/ubi-init:latest
+    command: "/usr/sbin/init"
+    pre_build_image: true
+    privileged: true
+    exposed_ports:
+      - "9080/tcp"
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      interpreter_python: auto_silent
+      remote_tmp: /tmp/.ansible/tmp
+      ALLOW_BROKEN_CONDITIONALS: ${ALLOW_BROKEN_CONDITIONALS:-True}
+    ssh_connection:
+      pipelining: false
+  env:
+    PWD: ${MOLECULE_SCENARIO_DIRECTORY}
+  inventory:
+    host_vars:
+      localhost:
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+      instance-rhel8:
+        # UBI 8 platform-python is too old for ansible-core 2.18+; use python39.
+        ansible_python_interpreter: /usr/bin/python3.9
+      instance-rhel10:
+        # Java 17 is not in UBI 10 base repos; Open Liberty supports Java 21.
+        openliberty_java_version: "21"

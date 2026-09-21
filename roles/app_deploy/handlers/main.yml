@@ -1,0 +1,9 @@
+---
+# app_deploy – handlers
+
+- name: Restart Open Liberty service
+  ansible.builtin.systemd:
+    name: "openliberty-{{ openliberty_server_name }}"
+    state: restarted
+  become: true
+  listen: Restart Open Liberty service

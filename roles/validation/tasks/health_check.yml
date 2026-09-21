@@ -1,0 +1,17 @@
+---
+- name: "Query Open Liberty health endpoint {{ openliberty_health_url_path }}"
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ openliberty_http_port }}{{ openliberty_health_url_path }}"
+    method: GET
+    status_code: 200
+    timeout: 10
+  register: _openliberty_health_response
+  retries: "{{ (openliberty_validation_timeout | int // openliberty_validation_delay | int) | int }}"
+  delay: "{{ openliberty_validation_delay }}"
+  until: _openliberty_health_response.status == 200
+  failed_when: _openliberty_health_response.status != 200
+
+- name: Show health response
+  ansible.builtin.debug:
+    var: _openliberty_health_response.json
+  when: _openliberty_health_response.json is defined

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Managed by Ansible (port_config role) – do not edit by hand -->
+<!-- Reference: https://openliberty.io/docs/latest/reference/config/httpEndpoint.html -->
+<server>
+
+    <!--
+        HTTP Endpoint
+        httpPort  : plain HTTP listener (set to -1 to disable)
+        httpsPort : TLS/SSL listener   (set to -1 to disable)
+        host      : network interface  (* = all interfaces)
+    -->
+    <httpEndpoint id="{{ openliberty_endpoint_id }}"
+                  host="{{ openliberty_endpoint_host }}"
+                  httpPort="{{ openliberty_http_port }}"
+                  httpsPort="{{ openliberty_https_port if openliberty_https_enabled | bool else -1 }}"
+    />
+
+    <!--
+        HTTP Options
+        Reference: https://openliberty.io/docs/latest/reference/config/httpOptions.html
+    -->
+    <httpOptions maxKeepAliveRequests="{{ openliberty_http_max_keep_alive_requests }}"
+                 persistTimeout="{{ openliberty_http_persist_timeout }}"
+    />
+
+</server>

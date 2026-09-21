@@ -1,0 +1,4 @@
+antsibull-docs
+ansible-basic-sphinx-ext
+sphinx-rtd-theme
+myst-parser

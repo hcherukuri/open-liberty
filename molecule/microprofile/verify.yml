@@ -1,0 +1,22 @@
+---
+- name: Verify MicroProfile installation
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Run shared Open Liberty install checks
+      ansible.builtin.include_tasks: ../verify_common_tasks.yml
+      vars:
+        openliberty_verify_service_name: openliberty-microServer
+        openliberty_verify_http_port: 9080
+
+    - name: Query /health endpoint
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:9080/health"
+        method: GET
+        status_code: 200
+        timeout: 10
+      register: _health
+      retries: 12
+      delay: 10
+      until: _health.status == 200

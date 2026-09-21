@@ -1,0 +1,39 @@
+---
+# Reconfigure httpEndpoint ports (9080/9443 → 8080/8443) on RHEL 9.
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_FORCE_COLOR: "true"
+  playbooks:
+    prepare: ../prepare.yml
+    converge: converge.yml
+    verify: verify.yml
+    cleanup: ../default/cleanup.yml
+  inventory:
+    group_vars:
+      all:
+        openliberty_version: "24.0.0.9"
+        openliberty_edition: webProfile
+        openliberty_server_name: defaultServer
+        openliberty_http_port: 9080
+        openliberty_https_port: 9443
+        openliberty_install_java: true
+        openliberty_validate_health_endpoint: false
+
+platforms:
+  # Expose both old and new ports so verify can probe the reconfigured listener.
+  - name: instance-rhel9
+    image: registry.access.redhat.com/ubi9/ubi-init:latest
+    command: "/usr/sbin/init"
+    pre_build_image: true
+    privileged: true
+    exposed_ports:
+      - "9080/tcp"
+      - "8080/tcp"
+    published_ports:
+      - "0.0.0.0:9080:9080/tcp"
+      - "0.0.0.0:8080:8080/tcp"
+
+verifier:
+  name: ansible

@@ -1,0 +1,45 @@
+---
+# verify.yml – app_deploy scenario
+- name: Verify Application Deployment
+  hosts: all
+  gather_facts: false
+
+  vars:
+    _ol_server_dir: /opt/openliberty/wlp/usr/servers/defaultServer
+
+  tasks:
+    - name: Assert configDropins override XML exists
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/configDropins/overrides/app_deploy.xml"
+      register: _app_xml
+      failed_when: not _app_xml.stat.exists
+
+    - name: Assert apps/ directory exists
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/apps"
+      register: _apps_dir
+      failed_when: not _apps_dir.stat.isdir | default(false)
+
+    - name: Assert sample.war deployed to dropins/
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/dropins/sample.war"
+      register: _dropins_war
+      failed_when: not _dropins_war.stat.exists
+
+    - name: Find any .bak files left by the backup step
+      ansible.builtin.find:
+        paths: "{{ _ol_server_dir }}/apps"
+        patterns: "*.bak"
+      register: _bak_files
+
+    - name: Assert at least one timestamped backup was created
+      ansible.builtin.assert:
+        that: _bak_files.matched >= 1
+        fail_msg: "No .bak backup archive found – backup step may not have run"
+        success_msg: "Timestamped backup archive present: {{ _bak_files.files | map(attribute='path') | list }}"
+
+    - name: Assert dropins/ WAR is owned by liberty user
+      ansible.builtin.stat:
+        path: "{{ _ol_server_dir }}/dropins/sample.war"
+      register: _war_stat
+      failed_when: _war_stat.stat.pw_name | default('') != 'liberty'

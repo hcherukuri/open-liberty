@@ -1,0 +1,10 @@
+---
+- name: "Wait for HTTP port {{ openliberty_http_port }} to be listening"
+  ansible.builtin.wait_for:
+    host: "127.0.0.1"
+    port: "{{ openliberty_http_port }}"
+    timeout: "{{ openliberty_validation_timeout }}"
+    delay: "{{ openliberty_validation_delay }}"
+    msg: >
+      Timed out waiting for Open Liberty to listen on port {{ openliberty_http_port }}.
+      Check {{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/logs/messages.log

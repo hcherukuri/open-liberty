@@ -1,0 +1,12 @@
+---
+- name: Converge – MicroProfile
+  hosts: all
+  gather_facts: true
+
+  vars:
+    openliberty_service_name: "openliberty-microServer"
+
+  roles:
+    - role: middleware_automation.open_liberty.install
+    - role: middleware_automation.open_liberty.server_config
+    - role: middleware_automation.open_liberty.systemd

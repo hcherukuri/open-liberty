@@ -1,0 +1,13 @@
+---
+- name: Verify Open Liberty installation
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Run shared Open Liberty install checks
+      ansible.builtin.include_tasks: ../verify_common_tasks.yml
+      vars:
+        openliberty_verify_service_name: openliberty-defaultServer
+        openliberty_verify_http_port: 9080
+        openliberty_verify_check_server_xml: true
+        openliberty_verify_check_user: true

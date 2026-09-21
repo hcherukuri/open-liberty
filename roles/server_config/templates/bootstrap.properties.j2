@@ -1,0 +1,4 @@
+# bootstrap.properties – managed by Ansible
+{% for key, value in openliberty_bootstrap_properties.items() %}
+{{ key }}={{ value }}
+{% endfor %}

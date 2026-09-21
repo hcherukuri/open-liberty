@@ -1,0 +1,8 @@
+---
+openliberty_service_name: "openliberty-{{ openliberty_server_name | default('defaultServer') }}"
+openliberty_server_name: defaultServer
+openliberty_install_dir: /opt/openliberty
+openliberty_user: liberty
+openliberty_group: liberty
+openliberty_remove_user: true
+openliberty_remove_group: true

@@ -1,0 +1,33 @@
+---
+# version_update – vars
+# Computed download paths mirroring the logic in install/vars/main.yml.
+
+_openliberty_edition_artifact_map:
+  kernel: kernel
+  webProfile: webProfile10
+  webProfile8: webProfile8
+  webProfile9: webProfile9
+  webProfile10: webProfile10
+  webProfile11: webProfile11
+  jakartaee: jakartaee10
+  jakartaee9: jakartaee9
+  jakartaee10: jakartaee10
+  jakartaee11: jakartaee11
+  microProfile: microProfile6
+  microProfile3: microProfile3
+  microProfile4: microProfile4
+  microProfile5: microProfile5
+  microProfile6: microProfile6
+  microProfile7: microProfile7
+
+_openliberty_maven_edition: >-
+  {{ _openliberty_edition_artifact_map[openliberty_edition] | default(openliberty_edition) }}
+
+_openliberty_update_computed_url: >-
+  {{ openliberty_download_base_url }}/openliberty-{{ _openliberty_maven_edition }}/{{ openliberty_new_version }}/openliberty-{{ _openliberty_maven_edition }}-{{ openliberty_new_version }}.zip
+
+openliberty_update_archive_url: >-
+  {{ openliberty_download_url if openliberty_download_url | length > 0 else _openliberty_update_computed_url }}
+
+openliberty_update_archive_filename: >-
+  openliberty-{{ _openliberty_maven_edition }}-{{ openliberty_new_version }}.zip

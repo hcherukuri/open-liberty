@@ -1,0 +1,27 @@
+---
+# In-place upgrade of an existing Open Liberty installation.
+# https://openliberty.io/docs/latest/zero-migration-architecture.html
+
+openliberty_home: /opt/openliberty/wlp
+openliberty_install_dir: /opt/openliberty
+openliberty_install_workdir: /tmp
+openliberty_user: liberty
+openliberty_group: liberty
+
+# Target version to upgrade to (override via -e or group_vars).
+openliberty_new_version: "24.0.0.9"
+
+# Must match the edition originally installed.
+openliberty_edition: webProfile
+
+openliberty_download_base_url: "https://repo1.maven.org/maven2/io/openliberty"
+openliberty_download_url: ""
+openliberty_download_checksum: ""
+openliberty_download_retries: 3
+openliberty_download_timeout: 600
+
+# Back up wlp/ to {{ openliberty_install_dir }}/wlp.backup.<timestamp> before replace.
+openliberty_update_backup: true
+
+openliberty_service_name: "openliberty-{{ openliberty_server_name | default('defaultServer') }}"
+openliberty_server_name: defaultServer

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Managed by Ansible – do not edit by hand -->
+<server description="{{ openliberty_server_description }}">
+
+    <!-- ================================================================
+         Feature Manager
+         ================================================================ -->
+    <featureManager>
+{% for feature in openliberty_features %}
+        <feature>{{ feature }}</feature>
+{% endfor %}
+    </featureManager>
+
+    <!-- ================================================================
+         HTTP Endpoints
+         ================================================================ -->
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*"
+                  httpPort="{{ openliberty_http_port }}"
+{% if openliberty_https_enabled %}
+                  httpsPort="{{ openliberty_https_port }}"
+{% endif %}
+    />
+
+{% if openliberty_configure_logging %}
+    <!-- ================================================================
+         Logging
+         ================================================================ -->
+    <logging
+        consoleLogLevel="{{ openliberty_log_level }}"
+        maxFileSize="{{ openliberty_log_max_file_size }}"
+        maxFiles="{{ openliberty_log_max_files }}"
+{% if openliberty_log_dir | length > 0 %}
+        logDirectory="{{ openliberty_log_dir }}"
+{% endif %}
+    />
+{% endif %}
+
+{% if openliberty_datasources | length > 0 %}
+    <!-- ================================================================
+         Data Sources
+         ================================================================ -->
+{% for ds in openliberty_datasources %}
+    <dataSource id="{{ ds.id }}"
+                jdbcDriverRef="{{ ds.jdbcDriverRef }}"
+{% if ds.jndiName is defined %}
+                jndiName="{{ ds.jndiName }}"
+{% endif %}
+    >
+        <properties
+            databaseName="{{ ds.databaseName | default('') }}"
+{% if ds.url is defined %}
+            url="{{ ds.url }}"
+{% endif %}
+            user="{{ ds.user | default('') }}"
+            password="{{ ds.password | default('') }}"
+        />
+    </dataSource>
+{% endfor %}
+{% endif %}
+
+</server>

@@ -1,0 +1,42 @@
+---
+# verify.yml – validation scenario
+# The validation role itself performs all service/port/health assertions during
+# converge.  This playbook adds a final structural check to confirm the role
+# left the server in a healthy state after its assertions passed.
+- name: Verify Validation Role
+  hosts: all
+  gather_facts: false
+
+  vars:
+    _ol_server_dir: /opt/openliberty/wlp/usr/servers/defaultServer
+
+  tasks:
+    - name: Check server binary exists
+      ansible.builtin.stat:
+        path: /opt/openliberty/wlp/bin/server
+      register: _server_bin
+
+    - name: Assert server binary is present
+      ansible.builtin.assert:
+        that: _server_bin.stat.exists
+        fail_msg: "bin/server not found – installation appears broken"
+        success_msg: "bin/server is present"
+
+    - name: Check service is active
+      ansible.builtin.systemd:
+        name: openliberty-defaultServer
+      register: _svc
+      become: true
+
+    - name: Assert service is active
+      ansible.builtin.assert:
+        that: _svc.status.ActiveState == 'active'
+        fail_msg: "openliberty-defaultServer is not active (state: {{ _svc.status.ActiveState }})"
+        success_msg: "Service is active"
+
+    - name: Confirm HTTP port 9080 is still open
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: 9080
+        timeout: 30
+        msg: "HTTP port 9080 is no longer open after validation role ran"

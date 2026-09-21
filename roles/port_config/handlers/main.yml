@@ -1,0 +1,23 @@
+---
+# port_config – handlers
+
+- name: Restart Open Liberty service
+  ansible.builtin.systemd:
+    name: "{{ openliberty_service_name }}"
+    state: restarted
+  become: true
+  listen: Restart Open Liberty service
+
+- name: Reload firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded
+  become: true
+  listen: Reload firewalld
+
+- name: Reload ufw
+  ansible.builtin.command:
+    cmd: ufw reload
+  become: true
+  changed_when: false
+  listen: Reload ufw

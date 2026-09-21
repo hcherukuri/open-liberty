@@ -1,0 +1,45 @@
+---
+- name: Shared molecule bootstrap (python39 on RHEL 8, sudo, unzip)
+  ansible.builtin.import_playbook: ../prepare.yml
+
+- name: Install Open Liberty and create sample WAR stub
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Install and configure Open Liberty (webProfile)
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.install
+
+    - name: Configure server
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.server_config
+
+    - name: Enable and start Open Liberty service
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.systemd
+
+    - name: Wait for Open Liberty HTTP port to be open before deploy tests
+      ansible.builtin.wait_for:
+        host: "127.0.0.1"
+        port: "{{ openliberty_http_port }}"
+        timeout: 120
+        delay: 5
+
+    # Minimal WAR stub under /tmp/sample.war — Molecule images have no Maven.
+    - name: Create temporary WAR build directory
+      ansible.builtin.file:
+        path: /tmp/sample_war/WEB-INF
+        state: directory
+        mode: "0755"
+
+    - name: Copy minimal web.xml into WAR skeleton
+      ansible.builtin.copy:
+        src: web.xml
+        dest: /tmp/sample_war/WEB-INF/web.xml
+        mode: "0644"
+
+    - name: Package skeleton into sample.war
+      ansible.builtin.command:
+        cmd: zip -r /tmp/sample.war .
+        chdir: /tmp/sample_war
+      changed_when: true

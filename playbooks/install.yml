@@ -1,0 +1,22 @@
+---
+# Install Open Liberty and bring the server online.
+#   ansible-playbook -i inventory.ini playbooks/install.yml \
+#     -e openliberty_edition=webProfile -e openliberty_version=24.0.0.9
+- name: Install and start Open Liberty
+  hosts: liberty_servers
+  gather_facts: true
+  vars:
+    openliberty_version: "24.0.0.9"
+    openliberty_edition: "webProfile"
+    openliberty_server_name: defaultServer
+    openliberty_http_port: 9080
+    openliberty_https_port: 9443
+    openliberty_install_java: true
+    openliberty_jvm_options:
+      - "-Xms512m"
+      - "-Xmx1024m"
+  roles:
+    - role: middleware_automation.open_liberty.install
+    - role: middleware_automation.open_liberty.server_config
+    - role: middleware_automation.open_liberty.systemd
+    - role: middleware_automation.open_liberty.validation
