@@ -27,7 +27,8 @@ Each application item supports:
 | Variable | Description | Required |
 |:---------|:------------|:---------|
 | `name` | Logical application name (e.g. `myapp`) | Yes |
-| `src` | Local path on the Ansible controller, or an `http(s)://` URL | Yes |
+| `src` | Path on the Ansible controller (default), path on the managed node when `remote_src` is true, or an `http(s)://` URL | Yes |
+| `remote_src` | When `true`, `src` is read from the managed node instead of the controller | No |
 | `type` | Archive type: `war`, `ear`, `jar`. Inferred from the file extension when omitted. | No |
 | `context_root` | Context-root override (e.g. `/myapp`). Written into `server.xml` in explicit mode. | No |
 | `state` | `present` (default) or `absent` | No |

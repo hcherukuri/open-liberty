@@ -1,0 +1,31 @@
+---
+# Partner Certification Checker workflow for Automation Hub requirements.
+# See: https://github.com/ansible-collections/partner-certification-checker
+name: Run collection certification checks
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: cert-ver-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+# Files that are not related to the core functionality of your collection can
+# cause Ansible Lint to fail. If this happens, add an .ansible-lint file that
+# excludes those paths. See .ansible-lint in this repository.
+#
+# If there are sanity test failures that cannot be fixed, create a sanity ignore
+# file for each affected ansible-core version (for example, tests/sanity/ignore-2.18.txt).
+jobs:
+  call:
+    uses: ansible-collections/partner-certification-checker/.github/workflows/certification-reusable.yml@fefb6b967e99964b55665b66ef0d8e4148d84aca # v5.0.0
+    with:
+      # Default ansible-core 2.16 installs ansible-lint 24.12.2, which then
+      # upgrades ansible-core to >=2.19 via pip and crashes with:
+      # ModuleNotFoundError: ansible.parsing.yaml.constructor
+      # Using ansible-core >=2.19 selects ansible-lint 25.2.0, which is compatible.
+      ansible-core-version: "2.19.0"

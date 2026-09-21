@@ -28,9 +28,13 @@
     - name: Parse installed version from properties
       ansible.builtin.set_fact:
         _installed_version: >-
-          {{ (_version_props.content | b64decode)
-             | regex_search('com\\.ibm\\.websphere\\.productVersion=(.+)', '\\1')
-             | first | default('unknown') | trim }}
+          {{
+            (_version_props.content | b64decode)
+            | regex_search('productVersion=([0-9.]+)', '\1')
+            | default(['unknown'], true)
+            | first
+            | trim
+          }}
 
     - name: Assert installed version matches target version
       ansible.builtin.assert:

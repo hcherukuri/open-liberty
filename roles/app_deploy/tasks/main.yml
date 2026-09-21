@@ -13,6 +13,7 @@
   loop:
     - "{{ _openliberty_apps_dir }}"
     - "{{ _openliberty_dropins_dir }}"
+    - "{{ _openliberty_server_dir }}/configDropins/overrides"
 
 - name: Deploy application archives
   ansible.builtin.include_tasks: deploy_app.yml
@@ -33,6 +34,7 @@
   become: true
   when:
     - not openliberty_deploy_to_dropins | bool
-    - openliberty_applications | selectattr('state', 'undefined') | list | length > 0
-      or openliberty_applications | selectattr('state', 'equalto', 'present') | list | length > 0
+    - >-
+      (openliberty_applications | selectattr('state', 'undefined') | list | length > 0)
+      or (openliberty_applications | selectattr('state', 'equalto', 'present') | list | length > 0)
   notify: Restart Open Liberty service

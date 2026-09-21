@@ -1,0 +1,50 @@
+# .ansible-lint
+profile: production
+
+exclude_paths:
+  - .cache/
+  - .ansible/
+  - .github/
+  - docs/
+  - molecule/
+  - .ansible-lint
+  - .yamllint
+  - changelogs/changelog.yaml
+  - .tmp-collections/
+
+enable_list:
+  - fqcn-builtins
+  - no-log-password
+
+skip_list:
+  - file_is_small_enough
+  - vars_should_not_be_used
+  - name[template]
+  - var-naming[no-role-prefix]
+
+warn_list:
+  - experimental
+  - ignore-errors
+  - no-handler
+  - fqcn-builtins
+  - no-log-password
+  - unnamed-task
+  - schema
+  - meta-no-tags
+  - name[casing]
+  - template-instead-of-copy
+  - fqcn[keyword]
+  - no-changed-when
+  - key-order[task]
+  - meta-runtime[unsupported-version]
+  - jinja[spacing]
+
+use_default_rules: true
+
+# Molecule scenario vars and resource fragments are not playbooks; without this,
+# ansible-lint misclassifies them and raises syntax-check / empty-playbook noise.
+kinds:
+  - vars: "**/molecule/**/vars.yml"
+  - tasks: "**/molecule/resources/*.yml"
+  - tasks: "**/molecule/verify_common_tasks.yml"
+  - playbook: "**/molecule/prepare.yml"

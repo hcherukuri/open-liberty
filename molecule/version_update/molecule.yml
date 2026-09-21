@@ -25,3 +25,16 @@ provisioner:
 
 verifier:
   name: ansible
+
+scenario:
+  # No idempotence: second converge would try to install 24.0.0.9 over 24.0.0.12
+  # then no-op the upgrade, which is not a useful idempotence signal.
+  test_sequence:
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - destroy

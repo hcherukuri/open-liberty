@@ -23,37 +23,44 @@
         name: openliberty-defaultServer
       register: _svc
       become: true
-      ignore_errors: true
+      failed_when: false
 
     - name: Assert service is not running
       ansible.builtin.assert:
-        that: _svc.status.ActiveState in ['inactive', 'failed', 'unknown']
-        fail_msg: "openliberty-defaultServer is still active after uninstall (state: {{ _svc.status.ActiveState }})"
-        success_msg: "Service is not running (state: {{ _svc.status.ActiveState }})"
+        that:
+          - (_svc.status.ActiveState | default('unknown')) in ['inactive', 'failed', 'unknown']
+            or (_svc.failed | default(false))
+        fail_msg: >-
+          openliberty-defaultServer is still active after uninstall
+          (state: {{ _svc.status.ActiveState | default('n/a') }})
+        success_msg: "Service is not running"
 
+    # Prefer getent(1) rc over the getent module: with fail_key=false the module
+    # still inserts the key into ansible_facts (value None), which breaks
+    # "'liberty' not in dict" asserts.
     - name: Check liberty user is absent
-      ansible.builtin.getent:
-        database: passwd
-        key: liberty
-        fail_key: false
+      ansible.builtin.command:
+        cmd: getent passwd liberty
       register: _liberty_user
+      changed_when: false
+      failed_when: false
 
     - name: Assert liberty user was removed
       ansible.builtin.assert:
-        that: _liberty_user.ansible_facts.getent_passwd.liberty is not defined
+        that: _liberty_user.rc != 0
         fail_msg: "liberty user still exists – uninstall did not remove the system user"
         success_msg: "liberty user was removed"
 
     - name: Check liberty group is absent
-      ansible.builtin.getent:
-        database: group
-        key: liberty
-        fail_key: false
+      ansible.builtin.command:
+        cmd: getent group liberty
       register: _liberty_group
+      changed_when: false
+      failed_when: false
 
     - name: Assert liberty group was removed
       ansible.builtin.assert:
-        that: _liberty_group.ansible_facts.getent_group.liberty is not defined
+        that: _liberty_group.rc != 0
         fail_msg: "liberty group still exists – uninstall did not remove the system group"
         success_msg: "liberty group was removed"
 

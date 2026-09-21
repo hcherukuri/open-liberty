@@ -23,6 +23,34 @@
   become: true
   notify: Restart Open Liberty service
 
+# Keep server.xml in sync so a stale httpEndpoint in the base config cannot
+# race with the configDropins override after restart.
+- name: Align server.xml httpPort with configured value
+  ansible.builtin.replace:
+    path: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/server.xml"
+    regexp: 'httpPort="[0-9]+"'
+    replace: 'httpPort="{{ openliberty_http_port }}"'
+  become: true
+  notify: Restart Open Liberty service
+
+- name: Align server.xml httpsPort when HTTPS is enabled
+  ansible.builtin.replace:
+    path: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/server.xml"
+    regexp: 'httpsPort="[0-9]+"'
+    replace: 'httpsPort="{{ openliberty_https_port }}"'
+  become: true
+  when: openliberty_https_enabled | bool
+  notify: Restart Open Liberty service
+
+- name: Remove server.xml httpsPort when HTTPS is disabled
+  ansible.builtin.replace:
+    path: "{{ openliberty_home }}/usr/servers/{{ openliberty_server_name }}/server.xml"
+    regexp: '\s*httpsPort="[^"]*"'
+    replace: ''
+  become: true
+  when: not (openliberty_https_enabled | bool)
+  notify: Restart Open Liberty service
+
 - name: Open HTTP port in firewalld
   ansible.posix.firewalld:
     port: "{{ openliberty_http_port }}/tcp"

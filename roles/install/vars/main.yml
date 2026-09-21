@@ -26,7 +26,8 @@ _openliberty_maven_edition: >-
 # Maven Central path:
 #   io/openliberty/openliberty-<edition>/<version>/openliberty-<edition>-<version>.zip
 _openliberty_computed_url: >-
-  {{ openliberty_download_base_url }}/openliberty-{{ _openliberty_maven_edition }}/{{ openliberty_version }}/openliberty-{{ _openliberty_maven_edition }}-{{ openliberty_version }}.zip
+  {{ openliberty_download_base_url }}/openliberty-{{ _openliberty_maven_edition }}/{{
+  openliberty_version }}/openliberty-{{ _openliberty_maven_edition }}-{{ openliberty_version }}.zip
 
 openliberty_archive_url: >-
   {{ openliberty_download_url if openliberty_download_url | length > 0 else _openliberty_computed_url }}

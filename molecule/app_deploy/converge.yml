@@ -3,7 +3,7 @@
 # Runs the app_deploy role twice:
 #   Pass 1 – explicit server.xml (configDropins) mode
 #   Pass 2 – dropins mode
-# sample.war is built by prepare.yml and left at /tmp/sample.war
+# sample.war is built on the managed node by prepare.yml (/tmp/sample.war)
 - name: Converge – Application Deployment
   hosts: all
   gather_facts: true
@@ -19,6 +19,22 @@
         openliberty_applications:
           - name: sample
             src: /tmp/sample.war
+            remote_src: true
+            context_root: /sample
+            state: present
+
+    # Redeploy once so the backup step has an existing archive to replace.
+    - name: Redeploy sample.war to exercise backup
+      ansible.builtin.include_role:
+        name: middleware_automation.open_liberty.app_deploy
+      vars:
+        openliberty_deploy_to_dropins: false
+        openliberty_deploy_validate: false
+        openliberty_deploy_backup: true
+        openliberty_applications:
+          - name: sample
+            src: /tmp/sample.war
+            remote_src: true
             context_root: /sample
             state: present
 
@@ -32,6 +48,7 @@
         openliberty_applications:
           - name: sample
             src: /tmp/sample.war
+            remote_src: true
             state: absent
 
     - name: Deploy sample.war via dropins directory
@@ -44,4 +61,5 @@
         openliberty_applications:
           - name: sample
             src: /tmp/sample.war
+            remote_src: true
             state: present

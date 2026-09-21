@@ -43,6 +43,10 @@ openliberty_manage_user: true
 # Shell for the service account (no interactive login by default).
 openliberty_user_shell: /sbin/nologin
 
+# Whether privilege escalation (become) is required for install tasks.
+# Used by CI root-permission matrix testing; leave true for normal installs.
+openliberty_install_requires_become: true
+
 # Whether to install Java if it is not already present.
 # When true, the default Java package for the OS family is installed.
 openliberty_install_java: false

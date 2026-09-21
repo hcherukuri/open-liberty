@@ -6,3 +6,10 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .molecule/
+docs/_build/
+.cache/
+.tmp-collections/
+importer_result.json
+ansible_collections/
+changelogs/fragments/*.yml
+changelogs/fragments/*.yaml

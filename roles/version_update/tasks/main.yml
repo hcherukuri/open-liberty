@@ -19,9 +19,13 @@
 - name: Parse current version from properties file
   ansible.builtin.set_fact:
     _openliberty_installed_version: >-
-      {{ (_openliberty_current_props.content | b64decode)
-         | regex_search('com\\.ibm\\.websphere\\.productVersion=(.+)', '\\1')
-         | first | default('unknown') | trim }}
+      {{
+        (_openliberty_current_props.content | b64decode)
+        | regex_search('productVersion=([0-9.]+)', '\1')
+        | default(['unknown'], true)
+        | first
+        | trim
+      }}
   when: not _openliberty_current_props.failed
 
 - name: Report currently installed version
@@ -40,35 +44,14 @@
     - openliberty_new_version is version(_openliberty_installed_version, '<')
 
 - name: Skip upgrade when already at or beyond target version
-  ansible.builtin.meta: end_play
+  ansible.builtin.meta: end_host
   when:
     - _openliberty_installed_version is defined
     - _openliberty_installed_version not in ['unknown', '']
     - _openliberty_installed_version is version(openliberty_new_version, '>=')
 
-- name: Stop Open Liberty service before upgrade
-  ansible.builtin.systemd:
-    name: "{{ openliberty_service_name }}"
-    state: stopped
-  become: true
-  failed_when: false  # may not be running
-
-- name: Capture backup timestamp
-  ansible.builtin.set_fact:
-    _openliberty_backup_ts: "{{ ansible_date_time.iso8601_basic_short }}"
-  when: openliberty_update_backup | bool
-
-- name: Back up existing wlp directory
-  ansible.builtin.copy:
-    src: "{{ openliberty_home }}/"
-    dest: "{{ openliberty_install_dir }}/wlp.backup.{{ _openliberty_backup_ts }}"
-    remote_src: true
-    owner: "{{ openliberty_user }}"
-    group: "{{ openliberty_group }}"
-    mode: preserve
-  become: true
-  when: openliberty_update_backup | bool
-
+# Download while the current install is still intact so a network failure
+# cannot leave the host without a runtime.
 - name: Download new Open Liberty archive
   ansible.builtin.get_url:
     url: "{{ _openliberty_update_url }}"
@@ -81,13 +64,44 @@
   delay: 10
   until: _openliberty_update_download is succeeded
 
+- name: Stop Open Liberty service before upgrade
+  ansible.builtin.systemd:
+    name: "{{ openliberty_service_name }}"
+    state: stopped
+  become: true
+  failed_when: false  # may not be running
+
+- name: Capture backup timestamp
+  ansible.builtin.set_fact:
+    _openliberty_backup_ts: "{{ ansible_date_time.iso8601_basic_short }}"
+
 - name: Replace installation with new version
   block:
-    - name: Remove old wlp directory
+    - name: Preserve usr configuration before replacing runtime
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{ openliberty_home }}/usr"
+          - "{{ openliberty_install_dir }}/usr.preserve.{{ _openliberty_backup_ts }}"
+      become: true
+      changed_when: true
+
+    - name: Move existing wlp aside as backup
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{ openliberty_home }}"
+          - "{{ openliberty_install_dir }}/wlp.backup.{{ _openliberty_backup_ts }}"
+      become: true
+      when: openliberty_update_backup | bool
+      changed_when: true
+
+    - name: Remove old wlp when backup is disabled
       ansible.builtin.file:
         path: "{{ openliberty_home }}"
         state: absent
       become: true
+      when: not (openliberty_update_backup | bool)
 
     - name: Extract new Open Liberty archive
       ansible.builtin.unarchive:
@@ -97,6 +111,21 @@
         owner: "{{ openliberty_user }}"
         group: "{{ openliberty_group }}"
       become: true
+
+    - name: Remove freshly extracted default usr before restore
+      ansible.builtin.file:
+        path: "{{ openliberty_home }}/usr"
+        state: absent
+      become: true
+
+    - name: Restore preserved usr configuration
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{ openliberty_install_dir }}/usr.preserve.{{ _openliberty_backup_ts }}"
+          - "{{ openliberty_home }}/usr"
+      become: true
+      changed_when: true
 
     - name: Ensure correct ownership of new wlp directory
       ansible.builtin.file:
@@ -119,18 +148,44 @@
       when: not _openliberty_new_server_script.stat.exists
 
   rescue:
+    - name: Remove failed partial installation
+      ansible.builtin.file:
+        path: "{{ openliberty_home }}"
+        state: absent
+      become: true
+
     - name: Restore wlp directory from backup after upgrade failure
-      ansible.builtin.copy:
-        src: "{{ openliberty_install_dir }}/wlp.backup.{{ _openliberty_backup_ts }}/"
-        dest: "{{ openliberty_home }}/"
-        remote_src: true
-        owner: "{{ openliberty_user }}"
-        group: "{{ openliberty_group }}"
-        mode: preserve
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{ openliberty_install_dir }}/wlp.backup.{{ _openliberty_backup_ts }}"
+          - "{{ openliberty_home }}"
       become: true
       when:
         - openliberty_update_backup | bool
         - _openliberty_backup_ts is defined
+      changed_when: true
+      failed_when: false
+
+    - name: Restore preserved usr into rolled-back wlp
+      ansible.builtin.stat:
+        path: "{{ openliberty_install_dir }}/usr.preserve.{{ _openliberty_backup_ts }}"
+      register: _openliberty_usr_preserve
+      become: true
+      when: _openliberty_backup_ts is defined
+
+    - name: Move preserved usr back into rolled-back wlp
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{ openliberty_install_dir }}/usr.preserve.{{ _openliberty_backup_ts }}"
+          - "{{ openliberty_home }}/usr"
+      become: true
+      when:
+        - _openliberty_backup_ts is defined
+        - (_openliberty_usr_preserve.stat.exists | default(false))
+      changed_when: true
+      failed_when: false
 
     - name: Fail after rollback
       ansible.builtin.fail:

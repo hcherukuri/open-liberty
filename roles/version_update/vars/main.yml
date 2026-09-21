@@ -24,7 +24,9 @@ _openliberty_maven_edition: >-
   {{ _openliberty_edition_artifact_map[openliberty_edition] | default(openliberty_edition) }}
 
 _openliberty_update_computed_url: >-
-  {{ openliberty_download_base_url }}/openliberty-{{ _openliberty_maven_edition }}/{{ openliberty_new_version }}/openliberty-{{ _openliberty_maven_edition }}-{{ openliberty_new_version }}.zip
+  {{ openliberty_download_base_url }}/openliberty-{{ _openliberty_maven_edition }}/{{
+  openliberty_new_version }}/openliberty-{{ _openliberty_maven_edition }}-{{
+  openliberty_new_version }}.zip
 
 openliberty_update_archive_url: >-
   {{ openliberty_download_url if openliberty_download_url | length > 0 else _openliberty_update_computed_url }}

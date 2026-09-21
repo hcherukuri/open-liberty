@@ -10,8 +10,6 @@
     - name: Install Open Liberty at initial version
       ansible.builtin.include_role:
         name: middleware_automation.open_liberty.install
-      vars:
-        openliberty_version: "{{ openliberty_version }}"
 
     - name: Configure server
       ansible.builtin.include_role:
@@ -31,9 +29,6 @@
     - name: Update Open Liberty to new version
       ansible.builtin.include_role:
         name: middleware_automation.open_liberty.version_update
-      vars:
-        openliberty_new_version: "{{ openliberty_new_version }}"
-        openliberty_update_backup: true
 
     - name: Wait for Open Liberty to come back up after update
       ansible.builtin.wait_for:

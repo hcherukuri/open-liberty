@@ -41,10 +41,11 @@
     - openliberty_deploy_backup | bool
     - _existing_app.stat.exists | default(false)
 
-- name: Copy application archive from controller
+- name: Copy application archive from controller or managed node
   ansible.builtin.copy:
     src: "{{ _app_src }}"
     dest: "{{ _app_dest }}"
+    remote_src: "{{ _app.remote_src | default(false) | bool }}"
     owner: "{{ openliberty_user }}"
     group: "{{ openliberty_group }}"
     mode: "0640"
@@ -55,11 +56,11 @@
     - _app_src is not match('^https?://')
   notify: Restart Open Liberty service
 
-- name: Download application archive from URL
+- name: Download application archive from URL (with checksum)
   ansible.builtin.get_url:
     url: "{{ _app_src }}"
     dest: "{{ _app_dest }}"
-    checksum: "{{ _app.checksum | default(omit) }}"
+    checksum: "{{ _app.checksum }}"
     owner: "{{ openliberty_user }}"
     group: "{{ openliberty_group }}"
     mode: "0640"
@@ -68,6 +69,22 @@
   when:
     - _app_state == 'present'
     - _app_src is match('^https?://')
+    - _app.checksum is defined
+  notify: Restart Open Liberty service
+
+- name: Download application archive from URL (without checksum)
+  ansible.builtin.get_url:
+    url: "{{ _app_src }}"
+    dest: "{{ _app_dest }}"
+    owner: "{{ openliberty_user }}"
+    group: "{{ openliberty_group }}"
+    mode: "0640"
+    timeout: 120
+  become: true
+  when:
+    - _app_state == 'present'
+    - _app_src is match('^https?://')
+    - _app.checksum is not defined
   notify: Restart Open Liberty service
 
 - name: Flush handlers before readiness probe

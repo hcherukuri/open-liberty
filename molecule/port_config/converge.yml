@@ -29,15 +29,32 @@
         timeout: 120
         delay: 5
 
-    - name: Reconfigure HTTP port to 8080 and HTTPS port to 8443
+    - name: Reconfigure HTTP port to 8080 (HTTPS disabled in this scenario)
       ansible.builtin.include_role:
         name: middleware_automation.open_liberty.port_config
       vars:
         openliberty_http_port: 8080
         openliberty_https_port: 8443
-        openliberty_https_enabled: true
+        openliberty_https_enabled: false
         openliberty_endpoint_host: "*"
         openliberty_firewall_port_manage: false
+
+    # include_role handlers are not always flushed by meta:flush_handlers in the
+    # parent play; restart explicitly so the new listener is bound before probes.
+    - name: Restart Open Liberty to apply new httpEndpoint ports
+      ansible.builtin.systemd:
+        name: "openliberty-{{ openliberty_server_name | default('defaultServer') }}"
+        state: restarted
+      become: true
+
+    - name: Wait until systemd reports the service active after restart
+      ansible.builtin.systemd:
+        name: "openliberty-{{ openliberty_server_name | default('defaultServer') }}"
+      register: _ol_svc
+      become: true
+      retries: 30
+      delay: 2
+      until: (_ol_svc.status.ActiveState | default('')) == 'active'
 
     - name: Wait for Open Liberty to come up on new port 8080
       ansible.builtin.wait_for:

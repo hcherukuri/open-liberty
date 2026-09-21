@@ -7,15 +7,15 @@ The role:
 2. Fails if `openliberty_new_version` would downgrade the installation.
 3. Skips the upgrade if the installed version is already greater than or equal to `openliberty_new_version`.
 4. Stops the Open Liberty service.
-5. Optionally backs up the existing `wlp/` directory.
-6. Downloads the new Open Liberty archive from Maven Central (or a custom URL).
-7. Removes the old `wlp/` tree and extracts the new archive.
-8. Rolls back from the backup if the upgrade fails.
-9. Restarts the Open Liberty service.
+5. Moves `wlp/usr` aside so server configuration survives the runtime replace.
+6. Optionally moves the existing `wlp/` tree to `wlp.backup.<timestamp>`.
+7. Downloads the new Open Liberty archive from Maven Central (or a custom URL).
+8. Extracts the new archive and restores the preserved `usr/` tree.
+9. Rolls back from the backup if the upgrade fails.
+10. Restarts the Open Liberty service.
 
-Server configuration files (`server.xml`, `jvm.options`, `bootstrap.properties`) under
-`wlp/usr/servers/` should be re-applied with the `server_config` role after upgrade when
-needed. Enable `openliberty_update_backup` so a failed upgrade can roll back.
+`wlp/usr` (servers, shared resources, configuration) is preserved across the upgrade.
+Enable `openliberty_update_backup` so a failed upgrade can roll back.
 
 ## Requirements
 

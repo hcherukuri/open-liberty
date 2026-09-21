@@ -27,17 +27,31 @@
     state: absent
   become: true
 
+# The install role sets home={{ openliberty_install_dir }}. After that path is
+# gone, userdel -r can fail; use userdel -f and ignore a missing home.
 - name: Remove system user
-  ansible.builtin.user:
-    name: "{{ openliberty_user }}"
-    state: absent
-    remove: true
+  ansible.builtin.command:
+    argv:
+      - userdel
+      - -f
+      - "{{ openliberty_user }}"
   become: true
   when: openliberty_remove_user | bool
+  register: _openliberty_userdel
+  changed_when: _openliberty_userdel.rc == 0
+  failed_when: >-
+    _openliberty_userdel.rc not in [0, 6]
+    and ('does not exist' not in (_openliberty_userdel.stderr | default('')))
 
 - name: Remove system group
-  ansible.builtin.group:
-    name: "{{ openliberty_group }}"
-    state: absent
+  ansible.builtin.command:
+    argv:
+      - groupdel
+      - "{{ openliberty_group }}"
   become: true
   when: openliberty_remove_group | bool
+  register: _openliberty_groupdel
+  changed_when: _openliberty_groupdel.rc == 0
+  failed_when: >-
+    _openliberty_groupdel.rc not in [0, 6]
+    and ('does not exist' not in (_openliberty_groupdel.stderr | default('')))

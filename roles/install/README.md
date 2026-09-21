@@ -46,6 +46,7 @@ Creates a dedicated system user and group, and installs Java if requested.
 | `openliberty_group` | System group | `liberty` |
 | `openliberty_manage_user` | Set to `false` if the user is managed externally | `true` |
 | `openliberty_user_shell` | Login shell for the service account | `/sbin/nologin` |
+| `openliberty_install_requires_become` | Require privilege escalation for install tasks | `true` |
 
 ### Java
 

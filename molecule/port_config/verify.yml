@@ -31,11 +31,11 @@
         fail_msg: "httpPort=8080 not found in port_config.xml"
         success_msg: "httpPort=8080 correctly rendered"
 
-    - name: Assert httpsPort 8443 is in override XML
+    - name: Assert httpsPort is disabled in override XML
       ansible.builtin.assert:
-        that: "'httpsPort=\"8443\"' in (_port_xml_content.content | b64decode)"
-        fail_msg: "httpsPort=8443 not found in port_config.xml"
-        success_msg: "httpsPort=8443 correctly rendered"
+        that: "'httpsPort=\"-1\"' in (_port_xml_content.content | b64decode)"
+        fail_msg: "httpsPort=-1 not found in port_config.xml"
+        success_msg: "httpsPort=-1 correctly rendered"
 
     - name: Confirm Open Liberty is listening on port 8080
       ansible.builtin.wait_for:

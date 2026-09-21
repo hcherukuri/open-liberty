@@ -30,11 +30,19 @@
       changed_when: false
 
     # ansible.builtin.package/dnf need the dnf Python bindings, which on UBI 8
-    # are only wired to platform-python. Pre-install unzip with raw dnf instead.
+    # are only wired to platform-python. Pre-install unzip/zip with raw dnf instead.
     - name: Install unzip on UBI images
       ansible.builtin.raw: >
         (command -v unzip >/dev/null) ||
         dnf install -y unzip ||
         microdnf install -y unzip ||
         yum install -y unzip
+      changed_when: false
+
+    - name: Install zip on UBI images
+      ansible.builtin.raw: >
+        (command -v zip >/dev/null) ||
+        dnf install -y zip ||
+        microdnf install -y zip ||
+        yum install -y zip
       changed_when: false
